@@ -29,6 +29,7 @@ export default {
     required: { type: Boolean, default: false },
     autofocus: { type: Boolean, default: false },
   },
+  emits: ["input", "focus", "blur"],
 };
 </script>
 
