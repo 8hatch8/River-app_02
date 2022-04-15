@@ -42,7 +42,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import axios from "axios";
 import InputBox from "../components/share/InputBox.vue";
 import FormButton from "../components/share/Button.vue";
 export default {
@@ -59,6 +59,23 @@ export default {
   methods: {
     showSignupForm() {
       this.$emit("show-signup-form");
+    },
+    async login() {
+      this.error = null;
+      try {
+        const response = await axios.post("http://localhost:3000/auth/sign_in", {
+          email: this.form.email,
+          password: this.form.password,
+        });
+        if (!response) {
+          throw new Error("メールアドレスかパスワードが違います");
+        }
+        console.log({ response });
+        return response;
+      } catch (error) {
+        console.log({ error });
+        this.error = "メールアドレスかパスワードが違います";
+      }
     },
   },
 };
