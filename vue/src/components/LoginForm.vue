@@ -45,6 +45,7 @@
 import axios from "axios";
 import InputBox from "../components/share/InputBox.vue";
 import FormButton from "../components/share/Button.vue";
+import { setItem } from "../mixin/auth";
 export default {
   components: { InputBox, FormButton },
   emits: ["show-signup-form", "redirect-to-chatroom"],
@@ -75,6 +76,9 @@ export default {
         }
 
         if (!this.error) {
+          // ローカルストレージに認証情報を保存
+          setItem(response);
+          // ChatRoomへリダイレクト
           this.$emit("redirect-to-chatroom");
         }
 
