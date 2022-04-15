@@ -46,7 +46,7 @@
         label="パスワード（確認用）"
         name="password_confirmation"
         type="password"
-        placeholder="パスワード（確認用）"
+        placeholder="もう一度ご入力ください"
         :required="true"
         :value="form.passwordConfirmation"
         @input="form.passwordConfirmation = $event.target.value"
