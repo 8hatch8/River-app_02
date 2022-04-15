@@ -1,5 +1,5 @@
 <template>
-  <div class="login-form">
+  <div class="signup-form">
     <div class="title">
       <h1 class="font font-lg">
         River for <br />
@@ -62,7 +62,7 @@
 </template>
 
 <script>
-// import axios from "axios";
+import axios from "axios";
 import InputBox from "../components/share/InputBox.vue";
 import FormButton from "../components/share/Button.vue";
 export default {
@@ -82,13 +82,31 @@ export default {
     showLoginForm() {
       this.$emit("show-login-form");
     },
-    async signUp() {},
+    async signUp() {
+      this.error = null;
+      try {
+        const response = await axios.post("http://localhost:3000/auth", {
+          nickname: this.form.nickname,
+          email: this.form.email,
+          password: this.form.password,
+          password_confirmation: this.form.passwordConfirmation,
+        });
+        if (!response) {
+          throw new Error("アカウントを登録できませんでした");
+        }
+        console.log({ response });
+        return response;
+      } catch (error) {
+        console.log({ error });
+        this.error = "アカウントを登録できませんでした";
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
-.login-form {
+.signup-form {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -104,6 +122,10 @@ export default {
 .Form {
   width: 80%;
   max-width: 400px;
+}
+.error {
+  margin-top: 30px;
+  margin-bottom: -10px;
 }
 .Button {
   margin: 30px 0;
