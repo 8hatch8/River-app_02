@@ -67,6 +67,7 @@ import InputBox from "../components/share/InputBox.vue";
 import FormButton from "../components/share/Button.vue";
 export default {
   components: { InputBox, FormButton },
+  emits: ["show-login-form", "redirect-to-chatroom"],
   data() {
     return {
       form: {
@@ -91,9 +92,15 @@ export default {
           password: this.form.password,
           password_confirmation: this.form.passwordConfirmation,
         });
+
         if (!response) {
           throw new Error("アカウントを登録できませんでした");
         }
+
+        if (!this.error) {
+          this.$emit("redirect-to-chatroom");
+        }
+
         console.log({ response });
         return response;
       } catch (error) {

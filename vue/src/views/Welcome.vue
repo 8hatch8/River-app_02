@@ -1,10 +1,16 @@
 <template>
   <div class="container welcome">
     <div v-if="shouldShowLoginForm">
-      <login-form @show-signup-form="shouldShowLoginForm = false" />
+      <login-form
+        @redirect-to-chatroom="redirectToChatRoom"
+        @showSignupForm="shouldShowLoginForm = false"
+      />
     </div>
     <div v-if="!shouldShowLoginForm">
-      <signup-form @show-login-form="shouldShowLoginForm = true" />
+      <signup-form
+        @redirect-to-chatroom="redirectToChatRoom"
+        @showLoginForm="shouldShowLoginForm = true"
+      />
     </div>
   </div>
 </template>
@@ -18,6 +24,11 @@ export default {
     return {
       shouldShowLoginForm: true,
     };
+  },
+  methods: {
+    redirectToChatRoom() {
+      this.$router.push({ name: "Chatroom" });
+    },
   },
 };
 </script>

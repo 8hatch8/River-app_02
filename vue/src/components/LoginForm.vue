@@ -47,6 +47,7 @@ import InputBox from "../components/share/InputBox.vue";
 import FormButton from "../components/share/Button.vue";
 export default {
   components: { InputBox, FormButton },
+  emits: ["show-signup-form", "redirect-to-chatroom"],
   data() {
     return {
       form: {
@@ -62,14 +63,21 @@ export default {
     },
     async login() {
       this.error = null;
+
       try {
         const response = await axios.post("http://localhost:3000/auth/sign_in", {
           email: this.form.email,
           password: this.form.password,
         });
+
         if (!response) {
           throw new Error("メールアドレスかパスワードが違います");
         }
+
+        if (!this.error) {
+          this.$emit("redirect-to-chatroom");
+        }
+
         console.log({ response });
         return response;
       } catch (error) {
