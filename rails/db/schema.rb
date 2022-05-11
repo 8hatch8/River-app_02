@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2022_05_11_032824) do
+ActiveRecord::Schema.define(version: 2022_05_11_060411) do
 
   create_table "agendas", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.string "name", null: false
@@ -20,6 +20,17 @@ ActiveRecord::Schema.define(version: 2022_05_11_032824) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["room_id"], name: "index_agendas_on_room_id"
+  end
+
+  create_table "items", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+    t.text "text", null: false
+    t.string "type", null: false
+    t.bigint "agenda_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["agenda_id"], name: "index_items_on_agenda_id"
+    t.index ["user_id"], name: "index_items_on_user_id"
   end
 
   create_table "rooms", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
@@ -47,5 +58,7 @@ ActiveRecord::Schema.define(version: 2022_05_11_032824) do
   end
 
   add_foreign_key "agendas", "rooms"
+  add_foreign_key "items", "agendas"
+  add_foreign_key "items", "users"
   add_foreign_key "rooms", "users"
 end
