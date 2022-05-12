@@ -17,7 +17,21 @@ class RoomsController < ApplicationController
   end
 
   def show
-    room = Room.find(params[:id])
+    room = Room.includes(:agendas).find(params[:id])
+
+    # roomがもつagendasを取得
+    agendas_json = room.agendas.map { |agenda| { id: agenda.id, name: agenda.name } }
+
+    # agendasを含めてroomを返す
+    room_json = {
+      id: room.id,
+      name: room.name,
+      password_digest: room.password_digest,
+      agendas_order: room.agendas_order,
+      user_id: room.user_id,
+      agendas: agendas_json,
+    }
+    render json: room_json, status: 200
   end
 
   def create

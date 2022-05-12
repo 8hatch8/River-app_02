@@ -1,18 +1,23 @@
 class AgendasController < ApplicationController
-  def index
-    agendas = Agenda.where(room_id: params[:room_id])
+  def show
+    agenda = Agenda.includes(:items).find(params[:id])
 
-    agendas_json =
-      agendas.map do |agenda|
-        {
-          id: agenda.id,
-          name: agenda.name,
-          content: agenda.content,
-          items_order: agenda.items_order,
-          room_id: agenda.room_id,
-        }
+    # agendaがもつitemsを取得
+    items_json =
+      agenda.items.map do |item|
+        { id: item.id, text: item.text, type: item.type, user_id: item.user_id }
       end
-    render json: agendas_json, status: 200
+
+    # itemsを含めてagendaを返す
+    agenda_json = {
+      id: agenda.id,
+      name: agenda.name,
+      content: agenda.content,
+      items_order: agenda.items_order,
+      room_id: agenda.room_id,
+      items: items_json,
+    }
+    render json: agenda_json, status: 200
   end
 
   def create
