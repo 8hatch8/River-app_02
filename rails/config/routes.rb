@@ -5,6 +5,8 @@ Rails.application.routes.draw do
                                 registrations: 'auth/registrations',
                               }
   resources :rooms, only: %i[index show create update destroy] do
-    resources :agendas, only: %i[index create update destroy]
+    resources :agendas, only: %i[index show create update destroy] do
+      resources :items, only: %i[create update destroy]
+    end
   end
 end
