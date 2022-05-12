@@ -6,5 +6,7 @@ class User < ActiveRecord::Base
   devise :database_authenticatable, :registerable, :recoverable, :rememberable, :validatable
   include DeviseTokenAuth::Concerns::User
 
-  has_many %i[rooms items]
+  # 【TODO】まとめて記述できるか？
+  has_many :rooms
+  has_many :items
 end
