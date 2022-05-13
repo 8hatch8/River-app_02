@@ -3,4 +3,6 @@ class Room < ApplicationRecord
   has_many :agendas
 
   validates :name, presence: true
+
+  serialize :agendas_order, Array
 end
