@@ -1,4 +1,6 @@
 class AgendasController < ApplicationController
+  before_action ::authenticate_user!
+
   def show
     agenda = Agenda.includes(:items).find(params[:id])
 
