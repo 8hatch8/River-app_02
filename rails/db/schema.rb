@@ -24,7 +24,7 @@ ActiveRecord::Schema.define(version: 2022_05_11_060411) do
 
   create_table "items", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.text "text", null: false
-    t.string "type", null: false
+    t.string "format", null: false
     t.bigint "agenda_id", null: false
     t.bigint "user_id", null: false
     t.datetime "created_at", precision: 6, null: false
