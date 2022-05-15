@@ -4,4 +4,9 @@ Rails.application.routes.draw do
                               controllers: {
                                 registrations: 'auth/registrations',
                               }
+  resources :rooms, only: %i[index show create update destroy] do
+    resources :agendas, only: %i[show create update destroy] do
+      resources :items, only: %i[create update destroy]
+    end
+  end
 end
