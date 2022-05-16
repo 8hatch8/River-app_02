@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import LoginForm from "../components/LoginForm.vue";
-import SignupForm from "../components/SignupForm.vue";
+import LoginForm from "@/components/Welcome/LoginForm.vue";
+import SignupForm from "@/components/Welcome/SignupForm.vue";
 export default {
   components: { LoginForm, SignupForm },
   data() {
