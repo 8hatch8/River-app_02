@@ -1,5 +1,5 @@
 <template>
-  <button class="Button" @click="$emit('input', $event)">{{ label }}</button>
+  <button class="Button" @click="$emit('click', $event)">{{ label }}</button>
 </template>
 
 <script>
@@ -7,7 +7,7 @@ export default {
   props: {
     label: { type: String, required: true },
   },
-  emits: ["input"],
+  emits: ["click"],
 };
 </script>
 
