@@ -6,7 +6,9 @@ Rails.application.routes.draw do
                               }
   resources :rooms, only: %i[index show create update destroy] do
     resources :agendas, only: %i[show create update destroy] do
+      member { patch :move }
       resources :items, only: %i[create update destroy]
+      member { patch :move }
     end
   end
 end

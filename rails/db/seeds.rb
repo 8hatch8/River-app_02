@@ -14,13 +14,25 @@ user = User.first
 room = Room.first
 
 5.times do |n|
-  Agenda.create!(name: "Agenda0#{n + 1}", content: "this is agenda0#{n + 1}", room_id: room.id)
+  agenda =
+    Agenda.create!(
+      name: "Agenda0#{n + 1}",
+      content: "this is agenda0#{n + 1}",
+      position: n + 1,
+      room_id: room.id,
+    )
 end
 
 agenda = Agenda.first
 
 5.times do |n|
-  Item.create!(text: "#{n + 1}つ目の項目", format: 'text', agenda_id: agenda.id, user_id: user.id)
+  Item.create!(
+    text: "#{n + 1}つ目の項目",
+    format: 'text',
+    position: n + 1,
+    agenda_id: agenda.id,
+    user_id: user.id,
+  )
 end
 
 puts 'seed.rbから初期データを作成しました'

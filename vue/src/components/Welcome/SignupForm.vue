@@ -1,5 +1,5 @@
 <template>
-  <div class="login-form">
+  <div class="signup-form">
     <div class="title">
       <h1 class="font font-lg">
         River for <br />
@@ -7,10 +7,20 @@
       </h1>
     </div>
     <div class="subtitle">
-      <h2 class="font-md">ログイン</h2>
+      <h2 class="font-md">新規登録</h2>
       <p class="font-sm">みんなの意見が会議をかえる</p>
     </div>
-    <form class="Form" @submit.prevent="login">
+    <form class="Form" @submit.prevent="signUp">
+      <input-box
+        id="nickname"
+        label="お名前"
+        name="nickname"
+        type="text"
+        placeholder="お名前"
+        :required="true"
+        :value="form.nickname"
+        @input="form.nickname = $event.target.value"
+      />
       <input-box
         id="email"
         label="メールアドレス"
@@ -31,48 +41,61 @@
         :value="form.password"
         @input="form.password = $event.target.value"
       />
+      <input-box
+        id="password-confirmation"
+        label="パスワード（確認用）"
+        name="password_confirmation"
+        type="password"
+        placeholder="もう一度ご入力ください"
+        :required="true"
+        :value="form.passwordConfirmation"
+        @input="form.passwordConfirmation = $event.target.value"
+      />
       <div class="error">{{ error }}</div>
-      <form-button label="ログインする" />
+      <form-button label="登録する" />
     </form>
     <p>
-      はじめての方は
-      <span class="underline" @click="showSignupForm">こちら</span>
+      登録済みの方は
+      <span class="underline" @click="showLoginForm">こちら</span>
     </p>
   </div>
 </template>
 
 <script>
 import axios from "axios";
-import InputBox from "../components/share/InputBox.vue";
-import FormButton from "../components/share/Button.vue";
-import { setItem } from "../mixin/auth";
+import InputBox from "@/components/share/InputBox.vue";
+import FormButton from "@/components/share/Button.vue";
+import { setItem } from "@/mixin/auth";
 export default {
   components: { InputBox, FormButton },
-  emits: ["show-signup-form", "redirect-to-chatroom"],
+  emits: ["show-login-form", "redirect-to-chatroom"],
   data() {
     return {
       form: {
+        nickname: "",
         email: "",
         password: "",
+        passwordConfirmation: "",
       },
       error: null,
     };
   },
   methods: {
-    showSignupForm() {
-      this.$emit("show-signup-form");
+    showLoginForm() {
+      this.$emit("show-login-form");
     },
-    async login() {
+    async signUp() {
       this.error = null;
-
       try {
-        const response = await axios.post("http://localhost:3000/auth/sign_in", {
+        const response = await axios.post("http://localhost:3000/auth", {
+          nickname: this.form.nickname,
           email: this.form.email,
           password: this.form.password,
+          password_confirmation: this.form.passwordConfirmation,
         });
 
         if (!response) {
-          throw new Error("メールアドレスかパスワードが違います");
+          throw new Error("アカウントを登録できませんでした");
         }
 
         if (!this.error) {
@@ -86,7 +109,7 @@ export default {
         return response;
       } catch (error) {
         console.log({ error });
-        this.error = "メールアドレスかパスワードが違います";
+        this.error = "アカウントを登録できませんでした";
       }
     },
   },
@@ -94,7 +117,7 @@ export default {
 </script>
 
 <style scoped>
-.login-form {
+.signup-form {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
@@ -110,6 +133,10 @@ export default {
 .Form {
   width: 80%;
   max-width: 400px;
+}
+.error {
+  margin-top: 30px;
+  margin-bottom: -10px;
 }
 .Button {
   margin: 30px 0;

@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Welcome from "../views/Welcome";
-import Chatroom from "../views/ChatRoom";
-import useValidate from "../mixin/validate";
+import Welcome from "@/views/Welcome";
+import Chatroom from "@/views/ChatRoom";
+import useValidate from "@/mixin/validate";
 
 const { error, validate } = useValidate();
 
