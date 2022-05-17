@@ -1,20 +1,11 @@
 class RoomsController < ApplicationController
-  before_action ::authenticate_user!
+  before_action :authenticate_user!
 
   def index
     user = User.includes(:rooms).find(current_user.id)
     rooms = user.rooms
 
-    rooms_json =
-      rooms.map do |room|
-        {
-          id: room.id,
-          name: room.name,
-          password_digest: room.password_digest,
-          agendas_order: room.agendas_order,
-          user_id: room.user_id,
-        }
-      end
+    rooms_json = rooms.map { |room| { id: room.id, name: room.name } }
     render json: rooms_json, status: 200
   end
 
@@ -22,17 +13,14 @@ class RoomsController < ApplicationController
     room = Room.includes(:agendas).find(params[:id])
 
     # roomがもつagendasを取得
-    agendas_json = room.agendas.map { |agenda| { id: agenda.id, name: agenda.name } }
+    agendas_json =
+      room
+        .agendas
+        .order(:position)
+        .map { |agenda| { id: agenda.id, name: agenda.name, position: agenda.position } }
 
     # agendasを含めてroomを返す
-    room_json = {
-      id: room.id,
-      name: room.name,
-      password_digest: room.password_digest,
-      agendas_order: room.agendas_order,
-      user_id: room.user_id,
-      agendas: agendas_json,
-    }
+    room_json = { id: room.id, name: room.name, user_id: room.user_id, agendas: agendas_json }
     render json: room_json, status: 200
   end
 
@@ -65,9 +53,6 @@ class RoomsController < ApplicationController
   private
 
   def room_params
-    params
-      .require(:rooms)
-      .permit(:name, :password_digest, :agendas_order)
-      .merge(user_id: current_user.id)
+    params.require(:room).permit(:name, :password_digest).merge(user_id: current_user.id)
   end
 end

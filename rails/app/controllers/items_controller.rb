@@ -1,5 +1,5 @@
 class ItemsController < ApplicationController
-  before_action ::authenticate_user!
+  before_action :authenticate_user!
 
   def create
     item = Item.new(item_params)
@@ -27,9 +27,18 @@ class ItemsController < ApplicationController
     render json: { message: '削除しました' }, status: 200
   end
 
+  def move
+    item = Item.find(params[:id])
+
+    render json: { message: '移動しました' }, status: 200 if item.insert_at(item_params[:position])
+  end
+
   private
 
   def item_params
-    params.require(:item).permit(:text, :type, :agenda_id).merge(user_id: current_user.id)
+    params
+      .require(:item)
+      .permit(:text, :format, :position, :agenda_id)
+      .merge(user_id: current_user.id)
   end
 end
