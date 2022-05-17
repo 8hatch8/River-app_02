@@ -3,6 +3,5 @@ class Agenda < ApplicationRecord
   has_many :items
 
   validates :name, presence: true
-
-  serialize :items_order, Array
+  validates :position, presence: true
 end
