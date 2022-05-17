@@ -3,7 +3,7 @@
     <div v-if="item.format === 'text'" class="item-text">
       <!-- アイコン -->
       <div class="icon">
-        <div><fa-icon icon="circle" /></div>
+        <div><fa-icon icon="user" /></div>
         <div class="nickname">name</div>
       </div>
       <!-- テキスト -->
