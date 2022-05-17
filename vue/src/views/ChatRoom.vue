@@ -17,11 +17,13 @@
             :selected-agenda="selectedAgenda"
             @select="onSelectAgenda"
             @add-next="onAddNextAgenda"
+            @edit-name="onEditAgendaName"
+            @delete="onDeleteAgenda"
           />
         </div>
         <!-- アジェンダ追加ボタン -->
         <button class="agenda-add-button" @click="onClickAddButton">
-          <fa-icon class="icon" icon="plus-square" />議題を追加
+          <fa-icon class="icon" icon="plus-square" />テーマを追加
         </button>
       </div>
 
@@ -29,14 +31,43 @@
       <div class="right-view">
         <div class="right-top">
           <!-- アジェンダ -->
-          <div class="agenda">
-            <div class="agenda-title font-md">
-              {{ selectedAgenda.name }}
+          <!-- 【TODO】コンポーネントとして切り出す -->
+          <template v-if="selectedAgenda.id > 0">
+            <div class="agenda">
+              <div class="agenda-title font-md">
+                {{ selectedAgenda.name }}
+              </div>
+              <!-- 説明文 編集時 -->
+              <template v-if="isEditingContent">
+                <input
+                  v-model="selectedAgenda.content"
+                  ref="contentEditBox"
+                  class="content-edit"
+                  onfocus="this.select()"
+                  @keypress.enter="onBlurContent"
+                  @blur="onBlurContent"
+                />
+              </template>
+              <!-- 説明文 通常時 -->
+              <template v-else>
+                <div
+                  class="agenda-content"
+                  @click="onClickContent"
+                  @mouseover="onMouseOverContent"
+                  @mouseleave="onMouseLeaveContent"
+                >
+                  {{ selectedAgenda.content || "説明を追加" }}
+                </div>
+              </template>
             </div>
-            <div class="agenda-content">
-              {{ selectedAgenda.content }}
+          </template>
+          <template v-else>
+            <div class="agenda">
+              <div class="agenda-title font-md">
+                {{ "テーマを選択してください" }}
+              </div>
             </div>
-          </div>
+          </template>
           <!-- アイテムリスト -->
           <div class="items">
             <div class="item" v-for="item in items" :key="item.id">
@@ -59,64 +90,171 @@ import ChatroomNavbar from "@/components/Chatroom/ChatroomNavbar.vue";
 import ChatroomAgenda from "@/components/Chatroom/ChatroomAgenda.vue";
 import ChatroomItem from "@/components/Chatroom/ChatroomItem.vue";
 import ChatForm from "@/components/Chatroom/ChatForm.vue";
+import axios from "axios";
+import { apiServer, axiosHeaders } from "@/mixin/auth";
 
 export default {
   components: { ChatroomNavbar, ChatroomAgenda, ChatroomItem, ChatForm },
   data() {
     return {
       user: { id: 1, nickname: "ゆたか" },
-      room: { id: 1, name: "サンプルのミーティングルーム" },
-      agendas: [
-        { id: 1, name: "agenda01", content: "議題01の詳細です" },
-        { id: 2, name: "agenda02", content: "議題02の詳細です" },
-        { id: 3, name: "agenda03", content: "議題03の詳細です" },
-      ],
-      selectedAgendaOrder: 1, // 【検討】idの方がいい？
-      itemsOrder: [1, 2, 3],
-      items: [
-        { id: 1, text: "1つ目の項目", format: "text", agenda_id: 1, user_id: 1 },
-        { id: 2, text: "2つ目の項目", format: "text", agenda_id: 1, user_id: 1 },
-        { id: 3, text: "3つ目の項目", format: "text", agenda_id: 1, user_id: 1 },
-      ],
+      room: {},
+      selectedAgenda: {},
+      mouseOverContent: false,
+      isEditingContent: false,
     };
   },
+  computed: {
+    agendas() {
+      return this.room.agendas;
+    },
+    items() {
+      return this.selectedAgenda.items;
+    },
+  },
   methods: {
-    onSelectAgenda(index) {
-      this.selectedAgendaOrder = index + 1;
+    // 左メニュー
+    onSelectAgenda(agenda) {
+      this.getAgenda(agenda);
     },
     onClickAddButton() {
-      this.addAgenda(this.createAgenda());
+      this.postAgenda();
     },
-    onAddNextAgenda(index) {
-      this.addAgenda(this.createAgenda(), index);
+    onAddNextAgenda(agenda) {
+      this.postAgenda(agenda.position + 1);
     },
-    createAgenda() {
-      const agenda = {
-        name: `新しいテーマ${this.agendas.length + 1}`,
-        room_id: this.room.id,
-      };
-      // axiosでアジェンダを新規作成
-      // headerに認証情報をセットするmixin
-      console.log({ agenda });
-      // responseからagendaを作成
-      // const resAgenda = res.agenda
-      // this.addAgenda(resAgenda)
+    onEditAgendaName(agenda, name) {
+      const editAgenda = { ...agenda };
+      editAgenda.name = name;
+      this.putAgenda(editAgenda);
     },
-    addAgenda(agenda, index) {
-      if (index == null) {
-        this.agendas.push(agenda);
-      } else {
-        this.agendas.splice(index + 1, 0, agenda);
-      }
+    onDeleteAgenda(agenda) {
+      this.deleteAgenda(agenda);
     },
+    // 右ビュー
+    onClickContent() {
+      this.isEditingContent = true;
+      this.$nextTick(() => {
+        this.$refs.contentEditBox.focus();
+      });
+    },
+    onMouseOverContent() {
+      this.mouseOverContent = true;
+    },
+    onMouseLeaveContent() {
+      this.mouseOverContent = false;
+    },
+    onBlurContent() {
+      this.isEditingContent = false;
+      this.putAgenda(this.selectedAgenda);
+    },
+    // チャット
     onSend(text) {
       console.log(text);
     },
-  },
-  computed: {
-    selectedAgenda() {
-      return this.agendas[this.selectedAgendaOrder - 1];
+    async getAgenda(agenda) {
+      try {
+        const res = await axios.get(`${apiServer}/rooms/${this.room.id}/agendas/${agenda.id}`, {
+          headers: axiosHeaders(),
+        });
+        if (!res) {
+          throw new Error("テーマ情報を取得できませんでした");
+        }
+        console.log("テーマ情報を取得しました");
+        this.selectedAgenda = res.data;
+      } catch (e) {
+        console.log(e);
+      }
     },
+    async postAgenda(index = null) {
+      try {
+        const res = await axios.post(
+          `${apiServer}/rooms/${this.room.id}/agendas`,
+          {
+            agenda: {
+              name: `新しいテーマ${this.agendas.length + 1}`,
+              position: index,
+              room_id: this.room.id,
+            },
+          },
+          { headers: axiosHeaders() }
+        );
+        // 再読み込み
+        this.getRoom();
+        return res;
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async putAgenda(editAgenda) {
+      try {
+        const res = await axios.put(
+          `${apiServer}/rooms/${this.room.id}/agendas/${editAgenda.id}`,
+          { agenda: editAgenda },
+          { headers: axiosHeaders() }
+        );
+        // 再読み込み
+        this.getRoom();
+        return res;
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async deleteAgenda(agenda) {
+      const shouldDelete = confirm(`「${agenda.name}」を削除しますか？`);
+      if (!shouldDelete) {
+        return;
+      }
+      try {
+        const res = await axios.delete(`${apiServer}/rooms/${this.room.id}/agendas/${agenda.id}`, {
+          headers: axiosHeaders(),
+        });
+        if (agenda.id === this.selectedAgenda.id) {
+          this.selectedAgenda = {};
+        }
+        this.getRoom();
+        return res;
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async getRoom(roomId = 1) {
+      try {
+        const res = await axios.get(`${apiServer}/rooms/${roomId}`, {
+          headers: axiosHeaders(),
+        });
+        if (!res) {
+          throw new Error("チャットルーム情報を取得できませんでした");
+        }
+        console.log("チャットルーム情報を取得しました");
+        this.room = res.data;
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async putRoom(room) {
+      try {
+        const res = await axios.put(
+          `${apiServer}/rooms/${this.room.id}`,
+          {
+            room: {
+              name: this.room.name,
+              password_digest: this.room["password_digest"],
+              agendas_order: room["agendas_order"],
+            },
+          },
+          {
+            headers: axiosHeaders(),
+          }
+        );
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+  },
+  created() {
+    this.getRoom();
   },
 };
 </script>
@@ -147,7 +285,7 @@ export default {
 
   .right-view {
     background-color: aliceblue;
-    flex-grow: 1;
+    flex: 1;
     padding: 20px 30px;
     overflow: auto;
 
@@ -159,6 +297,10 @@ export default {
         .agenda-title {
         }
         .agenda-content {
+          padding: 10px;
+        }
+        .content-edit {
+          width: 100%;
           padding: 10px;
         }
       }
