@@ -34,13 +34,14 @@ class AgendasController < ApplicationController
   def create
     agenda = Agenda.new(agenda_params)
     count_all_agendas = Agenda.where(room_id: agenda.room_id).length
+    agenda.position = agenda.position || count_all_agendas + 1
 
     if agenda.save
       agenda_json = {
         id: agenda.id,
         name: agenda.name,
         content: agenda.content,
-        position: count_all_agendas + 1,
+        position: agenda.position,
         room_id: agenda.room_id,
       }
       render json: { message: '新規作成しました', agenda: agenda_json }, status: 200
