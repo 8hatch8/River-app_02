@@ -1,22 +1,14 @@
 import axios from "axios";
-import { removeItem } from "./auth";
+import { removeItem, axiosHeaders } from "./auth";
 import { ref } from "vue";
 const error = ref(null);
 
 const validate = async () => {
   error.value = null;
 
-  const uid = window.localStorage.getItem("uid");
-  const client = window.localStorage.getItem("client");
-  const accessToken = window.localStorage.getItem("access-token");
-
   try {
     const response = await axios.get("http://localhost:3000/auth/validate_token", {
-      headers: {
-        uid: uid,
-        "access-token": accessToken,
-        client: client,
-      },
+      headers: axiosHeaders(),
     });
     if (!response) {
       throw new Error("認証に失敗しました");
