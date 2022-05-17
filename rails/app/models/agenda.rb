@@ -1,6 +1,7 @@
 class Agenda < ApplicationRecord
   belongs_to :room
-  has_many :items
+  acts_as_list scope: :room
+  has_many :items, -> { order(position: :asc) }
 
   validates :name, presence: true
   validates :position, presence: true
