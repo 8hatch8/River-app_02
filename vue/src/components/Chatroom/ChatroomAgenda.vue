@@ -3,7 +3,7 @@
     <div
       class="agenda-wrapper"
       :class="{ mouseover: mouseOver && !isEditing, selected: isSelectedAgenda }"
-      @click="onClickAgenda(index)"
+      @click="onClickAgenda(agenda)"
       @mouseover="onMouseOver"
       @mouseleave="onMouseLeave"
     >
@@ -63,8 +63,8 @@ export default {
   },
   methods: {
     // 選択
-    onClickAgenda(index) {
-      this.$emit("select", index);
+    onClickAgenda(agenda) {
+      this.$emit("select", agenda);
     },
     // マウスオーバー
     onMouseOver() {
@@ -91,15 +91,7 @@ export default {
       this.isEditing = false;
       // nameが空白なら元に戻す
       if (this.name.length === 0) this.name = this.agenda.name;
-      // 編集後のagenda
-      const editedAgenda = {
-        id: agenda.id,
-        name: this.name,
-      };
-      this.$emit("edit-name", agenda, editedAgenda);
-    },
-    onEditName(...args) {
-      this.$emit("edit-name", ...args);
+      this.$emit("edit-name", agenda, this.name);
     },
     onClickAddNext(index) {
       this.$emit("add-next", index);
