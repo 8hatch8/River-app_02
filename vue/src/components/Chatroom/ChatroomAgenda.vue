@@ -93,8 +93,8 @@ export default {
       if (this.name.length === 0) this.name = this.agenda.name;
       this.$emit("edit-name", agenda, this.name);
     },
-    onClickAddNext(index) {
-      this.$emit("add-next", index);
+    onClickAddNext(agenda) {
+      this.$emit("add-next", agenda);
     },
   },
 };
