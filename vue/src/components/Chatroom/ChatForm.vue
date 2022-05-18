@@ -16,7 +16,7 @@
 <script>
 export default {
   name: "ChatForm",
-  emits: ["send"],
+  emits: ["post"],
   data() {
     return {
       text: "",
@@ -25,7 +25,7 @@ export default {
   methods: {
     onEnter() {
       if (this.text !== "") {
-        this.$emit("send", this.text);
+        this.$emit("post", this.text);
         this.text = "";
       }
     },

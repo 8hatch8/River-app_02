@@ -77,8 +77,8 @@
         </div>
 
         <!-- 投稿フォーム -->
-        <div class="chat-form">
-          <chat-form @send="onSend" />
+        <div class="chat-form" v-if="this.selectedAgenda.id > 0">
+          <chat-form @post="onPost" />
         </div>
       </div>
     </div>
@@ -91,12 +91,14 @@ import ChatroomAgenda from "@/components/Chatroom/ChatroomAgenda.vue";
 import ChatroomItem from "@/components/Chatroom/ChatroomItem.vue";
 import ChatForm from "@/components/Chatroom/ChatForm.vue";
 import axios from "axios";
+import ActionCable from "actioncable";
 import { apiServer, axiosHeaders } from "@/mixin/auth";
 
 export default {
   components: { ChatroomNavbar, ChatroomAgenda, ChatroomItem, ChatForm },
   data() {
     return {
+      roomChannel: null,
       user: { id: 1, nickname: "ゆたか" },
       room: {},
       selectedAgenda: {},
@@ -149,8 +151,13 @@ export default {
       this.putAgenda(this.selectedAgenda);
     },
     // チャット
-    onSend(text) {
-      console.log(text);
+    onPost(text) {
+      this.roomChannel.perform("post", {
+        room_id: this.room.id,
+        text: text,
+        agenda_id: this.selectedAgenda.id,
+        user_id: this.user.id,
+      });
     },
     async getAgenda(agenda) {
       try {
@@ -252,9 +259,46 @@ export default {
         console.log(e);
       }
     },
+    // ActionCable
+    connectCable() {
+      //websocket:【TODO】本番環境ではURI変更
+      const cable = ActionCable.createConsumer("ws://localhost:3000/cable"); // https:ならwss:
+      this.roomChannel = cable.subscriptions.create(
+        {
+          channel: `RoomChannel`, // Rails: channels/room_channel.rb
+          roomId: this.room.id, // Rails: params[:roomId]
+        },
+        {
+          connected: () => {
+            console.log("websocket接続を開始しました");
+          },
+          received: (data) => {
+            this.data = data;
+            console.log("received");
+            if (data.type === "post") {
+              console.log("post");
+              if (data.payload.agenda_id === this.selectedAgenda.id) {
+                console.log("same_id");
+                this.getAgenda(this.selectedAgenda);
+              }
+            }
+          },
+        }
+      );
+    },
+    disconnectCable() {
+      this.roomChannel.unsubscribe();
+      console.log("websocket接続を切断しました");
+    },
   },
   created() {
     this.getRoom();
+  },
+  mounted() {
+    this.connectCable();
+  },
+  beforeUnmount() {
+    this.disconnectCable();
   },
 };
 </script>
