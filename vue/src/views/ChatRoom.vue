@@ -71,7 +71,12 @@
           <!-- アイテムリスト -->
           <div class="items">
             <div class="item" v-for="item in items" :key="item.id">
-              <chatroom-item :item="item" />
+              <chatroom-item
+                :item="item"
+                @add-next="onAddNextItem"
+                @edit-text="onEditItemText"
+                @delete="onDeleteItem"
+              />
             </div>
           </div>
         </div>
@@ -104,6 +109,8 @@ export default {
       selectedAgenda: {},
       mouseOverContent: false,
       isEditingContent: false,
+      // for dev 後で消す
+      res: null,
     };
   },
   computed: {
@@ -115,7 +122,7 @@ export default {
     },
   },
   methods: {
-    // 左メニュー
+    // 左メニュー:Agenda
     onSelectAgenda(agenda) {
       this.getAgenda(agenda);
     },
@@ -133,7 +140,7 @@ export default {
     onDeleteAgenda(agenda) {
       this.deleteAgenda(agenda);
     },
-    // 右ビュー
+    // 右ビュー：Content
     onClickContent() {
       this.isEditingContent = true;
       this.$nextTick(() => {
@@ -150,15 +157,73 @@ export default {
       this.isEditingContent = false;
       this.putAgenda(this.selectedAgenda);
     },
-    // チャット
-    onPost(text) {
-      this.roomChannel.perform("post", {
-        room_id: this.room.id,
-        text: text,
+    // 右ビュー：Item
+    onAddNextItem(targetItem) {
+      const item = {
+        text: "新規アイテム",
+        format: "text",
+        position: targetItem.position + 1,
         agenda_id: this.selectedAgenda.id,
-        user_id: this.user.id,
-      });
+      };
+      this.postItem(item);
     },
+    onEditItemText(item, text) {
+      const editItem = { ...item };
+      editItem.text = text;
+      this.putItem(editItem);
+    },
+    onDeleteItem(item) {
+      this.deleteItem(item);
+    },
+    // 右ビュー：ChatForm
+    onPost(text) {
+      const item = {
+        text: text,
+        format: "text",
+        position: null,
+        agenda_id: this.selectedAgenda.id,
+      };
+      this.postItem(item);
+    },
+    // API Communication：Item
+    async postItem(item) {
+      try {
+        const res = await axios.post(
+          `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items`,
+          { item: item },
+          { headers: axiosHeaders() }
+        );
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async putItem(editItem) {
+      try {
+        const res = await axios.put(
+          `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${editItem.id}`,
+          { item: editItem },
+          { headers: axiosHeaders() }
+        );
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async deleteItem(item) {
+      const shouldDelete = confirm(`「${item.text}」\nを削除しますか？`);
+      if (!shouldDelete) return;
+      try {
+        const res = await axios.delete(
+          `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${item.id}`,
+          { headers: axiosHeaders() }
+        );
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    // API Communication：Agenda
     async getAgenda(agenda) {
       try {
         const res = await axios.get(`${apiServer}/rooms/${this.room.id}/agendas/${agenda.id}`, {
@@ -209,9 +274,7 @@ export default {
     },
     async deleteAgenda(agenda) {
       const shouldDelete = confirm(`「${agenda.name}」を削除しますか？`);
-      if (!shouldDelete) {
-        return;
-      }
+      if (!shouldDelete) return;
       try {
         const res = await axios.delete(`${apiServer}/rooms/${this.room.id}/agendas/${agenda.id}`, {
           headers: axiosHeaders(),
@@ -219,12 +282,14 @@ export default {
         if (agenda.id === this.selectedAgenda.id) {
           this.selectedAgenda = {};
         }
+        // 再読み込み
         this.getRoom();
         return res;
       } catch (e) {
         console.log(e);
       }
     },
+    // API Communication：Room
     async getRoom(roomId = 1) {
       try {
         const res = await axios.get(`${apiServer}/rooms/${roomId}`, {
@@ -235,6 +300,7 @@ export default {
         }
         console.log("チャットルーム情報を取得しました");
         this.room = res.data;
+        this.connectCable();
       } catch (e) {
         console.log(e);
       }
@@ -270,16 +336,40 @@ export default {
         },
         {
           connected: () => {
-            console.log("websocket接続を開始しました");
+            console.log(`websocket接続を開始しました（room_channel_${this.room.id}）`);
           },
           received: (data) => {
-            this.data = data;
+            this.res = data;
             console.log("received");
-            if (data.type === "post") {
-              console.log("post");
-              if (data.payload.agenda_id === this.selectedAgenda.id) {
-                console.log("same_id");
-                this.getAgenda(this.selectedAgenda);
+            switch (data.type) {
+              case "post_item":
+                console.log("post_item");
+                if (data.item.agenda_id === this.selectedAgenda.id) {
+                  const agenda = { id: data.item.agenda_id };
+                  this.getAgenda(agenda);
+                }
+                break;
+              case "update_item": {
+                console.log("update_item");
+                const targetItem = this.selectedAgenda.items.find((item) => {
+                  return item.id === data.item.id;
+                });
+                if (targetItem) {
+                  targetItem.text = data.item.text;
+                  targetItem.format = data.item.format;
+                }
+                break;
+              }
+              case "delete_item": {
+                console.log("delete_item");
+                const targetItem = this.selectedAgenda.items.find((item) => {
+                  return item.id === data.item.id;
+                });
+                if (targetItem) {
+                  const index = this.selectedAgenda.items.indexOf(targetItem);
+                  this.selectedAgenda.items.splice(index, 1);
+                }
+                break;
               }
             }
           },
@@ -294,9 +384,7 @@ export default {
   created() {
     this.getRoom();
   },
-  mounted() {
-    this.connectCable();
-  },
+  mounted() {},
   beforeUnmount() {
     this.disconnectCable();
   },

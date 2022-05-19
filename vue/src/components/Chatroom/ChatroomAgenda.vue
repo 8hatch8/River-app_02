@@ -91,6 +91,7 @@ export default {
       this.isEditing = false;
       // nameが空白なら元に戻す
       if (this.name.length === 0) this.name = this.agenda.name;
+      if (this.name === this.agenda.name) return;
       this.$emit("edit-name", agenda, this.name);
     },
     onClickAddNext(agenda) {
@@ -109,7 +110,7 @@ export default {
   padding: 5px;
   color: rgba(25, 23, 17, 0.6);
   &.mouseover {
-    background-color: rgb(232, 231, 228);
+    background-color: rgb(250, 250, 250);
     cursor: pointer;
   }
   &.selected {
