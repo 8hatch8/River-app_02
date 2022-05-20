@@ -41,7 +41,7 @@ class AgendasController < ApplicationController
       type = 'add_agenda'
       broadcast_agenda(agenda, type)
     else
-      render json: { message: '作成できませんでした', erros: agenda.errors.messages }, status: 400
+      render json: { message: '作成できませんでした', errors: agenda.errors.messages }, status: 400
     end
   end
 
@@ -53,7 +53,7 @@ class AgendasController < ApplicationController
       type = 'update_agenda'
       broadcast_agenda(agenda, type)
     else
-      render json: { message: '更新できませんでした', erros: agenda.errors.messages }, status: 400
+      render json: { message: '更新できませんでした', errors: agenda.errors.messages }, status: 400
     end
   end
 
@@ -70,6 +70,10 @@ class AgendasController < ApplicationController
 
     if agenda.insert_at(agenda_params[:position])
       render json: { message: '移動しました' }, status: 200
+      type = 'move_agenda'
+      broadcast_agenda(agenda, type)
+    else
+      render json: { message: '移動できませんでした', errors: agenda.errors.messages }, status: 400
     end
   end
 

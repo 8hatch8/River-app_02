@@ -16,6 +16,7 @@
           item-key="id"
           :animation="300"
           :delay="5"
+          @change="onDragAgenda"
         >
           <template #item="{ element }">
             <chatroom-agenda
@@ -137,8 +138,8 @@ export default {
       selectedAgenda: {},
       mouseOverContent: false,
       isEditingContent: false,
-      // for dev 後で消す
-      res: null,
+      test: {},
+      targetAgenda: {},
     };
   },
   computed: {
@@ -158,6 +159,7 @@ export default {
       this.postAgenda();
     },
     onAddNextAgenda(agenda) {
+      // 【TODO】positionの処理をここに移す
       this.postAgenda(agenda);
     },
     onEditAgendaName(agenda, editedName) {
@@ -167,6 +169,14 @@ export default {
     },
     onDeleteAgenda(agenda) {
       this.deleteAgenda(agenda);
+    },
+    onDragAgenda(arg) {
+      if (!arg.moved) return;
+      const agenda = this.room.agendas.find((agenda) => {
+        return agenda === arg.moved.element;
+      });
+      agenda.position = arg.moved.newIndex + 1;
+      this.dragAgenda(agenda);
     },
     // 右ビュー：Content
     onClickContent() {
@@ -316,6 +326,18 @@ export default {
         console.log(e);
       }
     },
+    async dragAgenda(agenda) {
+      try {
+        const res = await axios.patch(
+          `${apiServer}/rooms/${this.room.id}/agendas/${agenda.id}/move`,
+          { agenda: agenda },
+          { headers: axiosHeaders() }
+        );
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
     // API Communication：Room
     async getRoom(roomId = 1) {
       try {
@@ -327,7 +349,6 @@ export default {
         }
         console.log("チャットルーム情報を取得しました");
         this.room = res.data;
-        this.connectCable();
       } catch (e) {
         console.log(e);
       }
@@ -371,9 +392,6 @@ export default {
               case "add_agenda":
                 this.getRoom();
                 break;
-              // case "move_agenda":
-              //   this.getRoom();
-              //   break;
               case "update_agenda": {
                 const targetAgenda = this.room.agendas.find((agenda) => {
                   return agenda.id === data.agenda.id;
@@ -401,6 +419,10 @@ export default {
                   this.selectedAgenda = {};
                   confirm("表示中のテーマは削除されました");
                 }
+                break;
+              }
+              case "move_agenda": {
+                this.getRoom();
                 break;
               }
               case "post_item":
@@ -443,6 +465,11 @@ export default {
   },
   beforeUnmount() {
     this.disconnectCable();
+  },
+  watch: {
+    "room.id"() {
+      this.connectCable();
+    },
   },
 };
 </script>
