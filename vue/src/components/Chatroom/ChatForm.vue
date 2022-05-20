@@ -35,13 +35,12 @@ export default {
 
 <style scoped lang="scss">
 .chatform-wrapper {
-  width: 100%;
   z-index: 10;
 }
 textarea {
   resize: none;
   font-size: 1rem;
-  width: 100%;
+  min-width: 100%;
   height: 60px;
   padding: 10px 15px;
   border-radius: 10px;

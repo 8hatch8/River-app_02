@@ -47,7 +47,7 @@
 <script>
 export default {
   name: "ChatroomAgenda",
-  props: ["agenda", "selectedAgenda", "index"],
+  props: ["agenda", "selectedAgenda"],
   emits: ["select", "delete", "edit-name", "add-next"],
   data() {
     return {
@@ -58,7 +58,7 @@ export default {
   },
   computed: {
     isSelectedAgenda() {
-      return this.agenda === this.selectedAgenda;
+      return this.agenda.id === this.selectedAgenda.id;
     },
   },
   methods: {
@@ -115,8 +115,8 @@ export default {
   }
   &.selected {
     color: black;
-    background-color: rgb(232, 231, 228);
-    font-weight: 600;
+    background-color: rgb(230, 230, 230);
+    border-radius: 10px;
   }
   .input-box {
     font-size: 1.2rem;

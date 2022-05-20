@@ -10,11 +10,10 @@
       <!-- Left Menu -->
       <div class="left-menu">
         <!-- アジェンダリスト -->
-        <div class="agendas" v-for="(agenda, index) in agendas" :key="agenda.id">
+        <div class="agendas" v-for="agenda in agendas" :key="agenda.id">
           <chatroom-agenda
             :agenda="agenda"
-            :index="index"
-            :selected-agenda="selectedAgenda"
+            :selectedAgenda="selectedAgenda"
             @select="onSelectAgenda"
             @add-next="onAddNextAgenda"
             @edit-name="onEditAgendaName"
@@ -61,6 +60,7 @@
               </template>
             </div>
           </template>
+
           <template v-else>
             <div class="agenda">
               <div class="agenda-title font-md">
@@ -68,14 +68,26 @@
               </div>
             </div>
           </template>
+
           <!-- アイテムリスト -->
           <div class="items">
-            <div class="item" v-for="item in items" :key="item.id">
+            <div
+              class="item"
+              :class="{
+                'item-text': item.format === 'text',
+                'item-h1': item.format === 'heading-1',
+                'item-h2': item.format === 'heading-2',
+                'item-h3': item.format === 'heading-3',
+              }"
+              v-for="item in items"
+              :key="item.id"
+            >
               <chatroom-item
                 :item="item"
                 @add-next="onAddNextItem"
                 @edit-text="onEditItemText"
                 @delete="onDeleteItem"
+                @change-format="onChangeFormat"
               />
             </div>
           </div>
@@ -174,6 +186,11 @@ export default {
     },
     onDeleteItem(item) {
       this.deleteItem(item);
+    },
+    onChangeFormat(item, format) {
+      const editItem = { ...item };
+      editItem.format = format;
+      this.putItem(editItem);
     },
     // 右ビュー：ChatForm
     onPost(text) {
@@ -391,7 +408,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style scoped lang="scss">
 .navbar {
   height: 60px;
   background-color: #999;
@@ -436,10 +453,27 @@ export default {
           padding: 10px;
         }
       }
+      // アイテムのインデント
       .items {
+        padding-bottom: 200px;
+        .item-h1 {
+          margin-left: 0px;
+        }
+        .item-h2 {
+          margin-left: 20px;
+        }
+        .item-h3 {
+          margin-left: 40px;
+        }
+        .item-text {
+          margin-left: 40px;
+        }
       }
     }
     .chat-form {
+      width: calc(100% - 400px);
+      position: absolute;
+      bottom: 10px;
     }
   }
 }

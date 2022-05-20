@@ -31,6 +31,17 @@
         </div>
       </div>
 
+      <!-- 見出し -->
+      <div v-if="item.format === 'heading-1'" class="item-heading heading-1">
+        {{ item.text }}
+      </div>
+      <div v-if="item.format === 'heading-2'" class="item-heading heading-2">
+        {{ item.text }}
+      </div>
+      <div v-if="item.format === 'heading-3'" class="item-heading heading-3">
+        {{ item.text }}
+      </div>
+
       <!-- 操作ボタン -->
       <div class="buttons" v-if="mouseOver">
         <!-- アイテム追加 -->
@@ -45,6 +56,16 @@
         <div class="button-icon" @click.stop="onClickDelete(item)">
           <fa-icon icon="trash" />
         </div>
+        <!-- コンフィグ -->
+        <div class="button-icon">
+          <fa-icon icon="ellipsis-h" @click="toggle = !toggle" />
+          <div v-if="toggle" class="dropdown-menu">
+            <a class="dropdown-item" @click="onClickFormat(item, 'heading-1')">見出し1</a>
+            <a class="dropdown-item" @click="onClickFormat(item, 'heading-2')">見出し2</a>
+            <a class="dropdown-item" @click="onClickFormat(item, 'heading-3')">見出し3</a>
+            <a class="dropdown-item" @click="onClickFormat(item, 'text')">テキスト</a>
+          </div>
+        </div>
       </div>
     </template>
   </div>
@@ -53,12 +74,13 @@
 export default {
   name: "ChatroomItem",
   props: ["item"],
-  emits: ["delete", "edit-text", "add-next"],
+  emits: ["delete", "edit-text", "add-next", "change-format"],
   data() {
     return {
       text: this.item.text,
       mouseOver: false,
       isEditing: false,
+      toggle: false,
     };
   },
   methods: {
@@ -68,6 +90,7 @@ export default {
     },
     onMouseLeave() {
       this.mouseOver = false;
+      this.toggle = false;
     },
     // 操作メニュー
     onClickDelete(item) {
@@ -93,6 +116,10 @@ export default {
     onClickAddNext(item) {
       this.$emit("add-next", item);
     },
+    onClickFormat(item, format = "text") {
+      if (item.format === format) return;
+      this.$emit("change-format", item, format);
+    },
   },
 };
 </script>
@@ -100,10 +127,10 @@ export default {
 .item-wrapper {
   display: flex;
   align-items: center;
-  padding: 10px 5px;
+  margin: 5px 0;
+  padding: 10px;
   &.mouseover {
-    background-color: rgb(243, 243, 243);
-    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.5);
   }
   .input-box {
     font-size: 1.2rem;
@@ -127,6 +154,26 @@ export default {
       align-items: center;
     }
   }
+  .item-heading {
+    font-weight: bold;
+    width: 100%;
+    &.heading-1 {
+      color: #51b392;
+      font-size: 2.5rem;
+      margin-top: 5px;
+      border-bottom: 1px solid #51b392;
+    }
+    &.heading-2 {
+      color: #51b392;
+      font-size: 2rem;
+    }
+    &.heading-3 {
+      color: rgb(110, 110, 110);
+      font-size: 1.5rem;
+      padding-left: 8px;
+      border-left: 8px solid rgb(110, 110, 110);
+    }
+  }
   .buttons {
     display: flex;
     flex-direction: row;
@@ -134,6 +181,27 @@ export default {
       padding: 3px;
       margin-left: 3px;
       border-radius: 5px;
+      position: relative;
+      cursor: pointer;
+      .dropdown-menu {
+        width: 100px;
+        position: absolute;
+        right: 0px;
+        z-index: 20;
+        display: flex;
+        flex-direction: column;
+        background-color: rgb(240, 240, 240);
+        border-radius: 1px;
+        .dropdown-item {
+          text-align: center;
+          padding: 5px 3px;
+          border-radius: 1px;
+          cursor: pointer;
+        }
+        :hover {
+          background-color: white;
+        }
+      }
     }
   }
 }

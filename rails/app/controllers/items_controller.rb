@@ -59,7 +59,7 @@ class ItemsController < ApplicationController
         type: type,
         item: {
           id: item.id,
-          format: 'text',
+          format: item.format,
           text: item.text,
           position: item.position,
           user_id: item.user_id,
