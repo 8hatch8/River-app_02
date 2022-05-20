@@ -10,7 +10,7 @@ class ItemsController < ApplicationController
       type = 'post_item'
       broadcast_item(item, type)
     else
-      render json: { message: '投稿できませんでした', erros: item.errors.messages }, status: 400
+      render json: { message: '投稿できませんでした', errors: item.errors.messages }, status: 400
     end
   end
 
@@ -22,7 +22,7 @@ class ItemsController < ApplicationController
       type = 'update_item'
       broadcast_item(item, type)
     else
-      render json: { message: '編集できませんでした', erros: item.errors.messages }, status: 400
+      render json: { message: '編集できませんでした', errors: item.errors.messages }, status: 400
     end
   end
 
@@ -37,7 +37,13 @@ class ItemsController < ApplicationController
   def move
     item = Item.find(params[:id])
 
-    render json: { message: '移動しました' }, status: 200 if item.insert_at(item_params[:position])
+    if item.insert_at(item_params[:position])
+      render json: { message: '移動しました' }, status: 200
+      type = 'move_item'
+      broadcast_item(item, type)
+    else
+      render json: { message: '移動できませんでした', errors: agenda.errors.messages }, status: 400
+    end
   end
 
   private

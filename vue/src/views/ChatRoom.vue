@@ -88,6 +88,7 @@
             :animation="300"
             :delay="5"
             handle=".draggable-handle"
+            @change="onDragItem"
           >
             <template
               #item="{ element }"
@@ -139,8 +140,6 @@ export default {
       selectedAgenda: {},
       mouseOverContent: false,
       isEditingContent: false,
-      test: {},
-      targetAgenda: {},
     };
   },
   computed: {
@@ -219,6 +218,14 @@ export default {
       editedItem.format = format;
       this.putItem(editedItem);
     },
+    onDragItem(arg) {
+      if (!arg.moved) return;
+      const item = this.selectedAgenda.items.find((item) => {
+        return item === arg.moved.element;
+      });
+      item.position = arg.moved.newIndex + 1;
+      this.dragItem(item);
+    },
     // 右ビュー：ChatForm
     onPost(text) {
       const item = {
@@ -260,6 +267,18 @@ export default {
       try {
         const res = await axios.delete(
           `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${item.id}`,
+          { headers: axiosHeaders() }
+        );
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async dragItem(item) {
+      try {
+        const res = await axios.patch(
+          `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${item.id}/move`,
+          { item: item },
           { headers: axiosHeaders() }
         );
         console.log(res);
@@ -422,10 +441,9 @@ export default {
                 }
                 break;
               }
-              case "move_agenda": {
+              case "move_agenda":
                 this.getRoom();
                 break;
-              }
               case "post_item":
                 if (data.item.agenda_id === this.selectedAgenda.id) {
                   const agenda = { id: data.item.agenda_id };
@@ -445,10 +463,17 @@ export default {
                 const targetItem = this.selectedAgenda.items.find((item) => {
                   return item.id === data.item.id;
                 });
-                if (targetItem) {
-                  const index = this.selectedAgenda.items.indexOf(targetItem);
-                  this.selectedAgenda.items.splice(index, 1);
-                }
+                if (!targetItem) return;
+                const index = this.selectedAgenda.items.indexOf(targetItem);
+                this.selectedAgenda.items.splice(index, 1);
+                break;
+              }
+              case "move_item": {
+                const targetItem = this.selectedAgenda.items.find((item) => {
+                  return item.id === data.item.id;
+                });
+                if (!targetItem) return;
+                this.getAgenda(this.selectedAgenda);
                 break;
               }
             }
