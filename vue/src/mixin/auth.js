@@ -1,4 +1,5 @@
-const apiServer = "http://localhost:3000";
+//const apiServer = "http://localhost:3000";
+const apiServer = "";
 
 const removeItem = () => {
   window.localStorage.removeItem("uid");

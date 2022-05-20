@@ -395,8 +395,7 @@ export default {
     },
     // ActionCable
     connectCable() {
-      //websocket:【TODO】本番環境ではURI変更
-      const cable = ActionCable.createConsumer("ws://localhost:3000/cable"); // https:ならwss:
+      const cable = ActionCable.createConsumer("/cable"); // http:ならws:、https:ならwss:
       this.roomChannel = cable.subscriptions.create(
         {
           channel: `RoomChannel`, // Rails: channels/room_channel.rb
