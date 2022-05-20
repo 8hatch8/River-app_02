@@ -6,9 +6,10 @@
     </div>
 
     <!-- メイン画面 -->
-    <div class="main">
+    <main class="main">
       <!-- Left Menu -->
       <div class="left-menu">
+        <!-- アジェンダリスト -->
         <vue-draggable
           class="agendas"
           v-model="room.agendas"
@@ -16,7 +17,6 @@
           :animation="300"
           :delay="5"
         >
-          <!-- アジェンダリスト -->
           <template #item="{ element }">
             <chatroom-agenda
               :agenda="element"
@@ -36,15 +36,15 @@
 
       <!-- Right View -->
       <div class="right-view">
+        <!-- アジェンダ 【TODO】コンポーネントとして切り出す-->
         <div class="right-top">
-          <!-- アジェンダ -->
-          <!-- 【TODO】コンポーネントとして切り出す -->
+          <!-- アジェンダ選択時 -->
           <template v-if="selectedAgenda.id > 0">
             <div class="agenda">
               <div class="agenda-title font-md">
                 {{ selectedAgenda.name }}
               </div>
-              <!-- 説明文 編集時 -->
+              <!-- 説明文（編集時） -->
               <template v-if="isEditingContent">
                 <input
                   v-model="selectedAgenda.content"
@@ -55,7 +55,7 @@
                   @blur="onBlurContent"
                 />
               </template>
-              <!-- 説明文 通常時 -->
+              <!-- 説明文（通常時） -->
               <template v-else>
                 <div
                   class="agenda-content"
@@ -69,6 +69,7 @@
             </div>
           </template>
 
+          <!-- アジェンダ未選択時 -->
           <template v-else>
             <div class="agenda">
               <div class="agenda-title font-md">
@@ -78,27 +79,33 @@
           </template>
 
           <!-- アイテムリスト -->
-          <div class="items">
-            <div
+          <vue-draggable
+            class="items"
+            v-model="selectedAgenda.items"
+            item-key="id"
+            :animation="300"
+            :delay="5"
+            handle=".draggable-handle"
+          >
+            <template
+              #item="{ element }"
               class="item"
               :class="{
-                'item-text': item.format === 'text',
-                'item-h1': item.format === 'heading-1',
-                'item-h2': item.format === 'heading-2',
-                'item-h3': item.format === 'heading-3',
+                'item-text': element.format === 'text',
+                'item-h1': element.format === 'heading-1',
+                'item-h2': element.format === 'heading-2',
+                'item-h3': element.format === 'heading-3',
               }"
-              v-for="item in items"
-              :key="item.id"
             >
               <chatroom-item
-                :item="item"
+                :item="element"
                 @add-next="onAddNextItem"
                 @edit-text="onEditItemText"
                 @delete="onDeleteItem"
                 @change-format="onChangeFormat"
               />
-            </div>
-          </div>
+            </template>
+          </vue-draggable>
         </div>
 
         <!-- 投稿フォーム -->
@@ -106,7 +113,7 @@
           <chat-form @post="onPost" />
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
