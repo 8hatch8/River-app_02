@@ -142,12 +142,12 @@ export default {
       this.postAgenda();
     },
     onAddNextAgenda(agenda) {
-      this.postAgenda(agenda.position + 1);
+      this.postAgenda(agenda);
     },
-    onEditAgendaName(agenda, name) {
-      const editAgenda = { ...agenda };
-      editAgenda.name = name;
-      this.putAgenda(editAgenda);
+    onEditAgendaName(agenda, editedName) {
+      const editedAgenda = { ...agenda };
+      editedAgenda.name = editedName;
+      this.putAgenda(editedAgenda);
     },
     onDeleteAgenda(agenda) {
       this.deleteAgenda(agenda);
@@ -180,17 +180,17 @@ export default {
       this.postItem(item);
     },
     onEditItemText(item, text) {
-      const editItem = { ...item };
-      editItem.text = text;
-      this.putItem(editItem);
+      const editedItem = { ...item };
+      editedItem.text = text;
+      this.putItem(editedItem);
     },
     onDeleteItem(item) {
       this.deleteItem(item);
     },
     onChangeFormat(item, format) {
-      const editItem = { ...item };
-      editItem.format = format;
-      this.putItem(editItem);
+      const editedItem = { ...item };
+      editedItem.format = format;
+      this.putItem(editedItem);
     },
     // 右ビュー：ChatForm
     onPost(text) {
@@ -215,11 +215,11 @@ export default {
         console.log(e);
       }
     },
-    async putItem(editItem) {
+    async putItem(editedItem) {
       try {
         const res = await axios.put(
-          `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${editItem.id}`,
-          { item: editItem },
+          `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${editedItem.id}`,
+          { item: editedItem },
           { headers: axiosHeaders() }
         );
         console.log(res);
@@ -255,36 +255,32 @@ export default {
         console.log(e);
       }
     },
-    async postAgenda(index = null) {
+    async postAgenda(agenda) {
       try {
         const res = await axios.post(
           `${apiServer}/rooms/${this.room.id}/agendas`,
           {
             agenda: {
               name: `新しいテーマ${this.agendas.length + 1}`,
-              position: index,
+              position: agenda ? agenda.position + 1 : null,
               room_id: this.room.id,
             },
           },
           { headers: axiosHeaders() }
         );
-        // 再読み込み
-        this.getRoom();
-        return res;
+        console.log(res);
       } catch (e) {
         console.log(e);
       }
     },
-    async putAgenda(editAgenda) {
+    async putAgenda(editedAgenda) {
       try {
         const res = await axios.put(
-          `${apiServer}/rooms/${this.room.id}/agendas/${editAgenda.id}`,
-          { agenda: editAgenda },
+          `${apiServer}/rooms/${this.room.id}/agendas/${editedAgenda.id}`,
+          { agenda: editedAgenda },
           { headers: axiosHeaders() }
         );
-        // 再読み込み
-        this.getRoom();
-        return res;
+        console.log(res);
       } catch (e) {
         console.log(e);
       }
@@ -299,9 +295,7 @@ export default {
         if (agenda.id === this.selectedAgenda.id) {
           this.selectedAgenda = {};
         }
-        // 再読み込み
-        this.getRoom();
-        return res;
+        console.log(res);
       } catch (e) {
         console.log(e);
       }
@@ -357,28 +351,58 @@ export default {
           },
           received: (data) => {
             this.res = data;
-            console.log("received");
             switch (data.type) {
+              case "add_agenda":
+                this.getRoom();
+                break;
+              // case "move_agenda":
+              //   this.getRoom();
+              //   break;
+              case "update_agenda": {
+                const targetAgenda = this.room.agendas.find((agenda) => {
+                  return agenda.id === data.agenda.id;
+                });
+                if (!targetAgenda) return;
+                targetAgenda.name = data.agenda.name;
+                targetAgenda.content = data.agenda.content;
+
+                if (targetAgenda.id === this.selectedAgenda.id) {
+                  this.selectedAgenda.name = targetAgenda.name;
+                  this.selectedAgenda.content = targetAgenda.content;
+                }
+                break;
+              }
+              case "delete_agenda": {
+                const targetAgenda = this.room.agendas.find((agenda) => {
+                  return agenda.id === data.agenda.id;
+                });
+                if (!targetAgenda) return;
+                // 対象Agendaを削除
+                const index = this.room.agendas.indexOf(targetAgenda);
+                this.room.agendas.splice(index, 1);
+                // 対象Agendaを表示中の場合
+                if (targetAgenda.id === this.selectedAgenda.id) {
+                  this.selectedAgenda = {};
+                  confirm("表示中のテーマは削除されました");
+                }
+                break;
+              }
               case "post_item":
-                console.log("post_item");
                 if (data.item.agenda_id === this.selectedAgenda.id) {
                   const agenda = { id: data.item.agenda_id };
                   this.getAgenda(agenda);
                 }
                 break;
               case "update_item": {
-                console.log("update_item");
                 const targetItem = this.selectedAgenda.items.find((item) => {
                   return item.id === data.item.id;
                 });
-                if (targetItem) {
-                  targetItem.text = data.item.text;
-                  targetItem.format = data.item.format;
-                }
+                if (!targetItem) return;
+                targetItem.text = data.item.text;
+                targetItem.format = data.item.format;
                 break;
               }
               case "delete_item": {
-                console.log("delete_item");
                 const targetItem = this.selectedAgenda.items.find((item) => {
                   return item.id === data.item.id;
                 });

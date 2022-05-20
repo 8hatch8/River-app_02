@@ -22,7 +22,7 @@
       <!-- 通常時 -->
       <template v-else>
         <div class="agenda-icon"><fa-icon icon="comment" /></div>
-        <div class="agenda-name">{{ name }}</div>
+        <div class="agenda-name">{{ agenda.name }}</div>
 
         <!-- 操作ボタン -->
         <div class="buttons" v-if="mouseOver">
@@ -78,6 +78,7 @@ export default {
       this.$emit("delete", agenda);
     },
     onClickEdit() {
+      this.name = this.agenda.name;
       this.isEditing = true;
       this.$nextTick(() => {
         this.$refs.editBox.focus();
