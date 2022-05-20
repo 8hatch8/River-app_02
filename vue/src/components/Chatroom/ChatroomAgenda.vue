@@ -138,6 +138,9 @@ export default {
       padding: 3px;
       margin-left: 3px;
       border-radius: 5px;
+      &:hover {
+        color: #51b392;
+      }
     }
   }
 }

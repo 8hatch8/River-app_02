@@ -44,6 +44,10 @@
 
       <!-- 操作ボタン -->
       <div class="buttons" v-if="mouseOver">
+        <!-- アイテム移動 -->
+        <div class="button-icon draggable-handle">
+          <fa-icon icon="grip-lines" />
+        </div>
         <!-- アイテム追加 -->
         <div class="button-icon" @click.stop="onClickAddNext(item)">
           <fa-icon icon="plus-circle" />
@@ -70,6 +74,7 @@
     </template>
   </div>
 </template>
+
 <script>
 export default {
   name: "ChatroomItem",
@@ -123,6 +128,7 @@ export default {
   },
 };
 </script>
+
 <style scoped lang="scss">
 .item-wrapper {
   display: flex;
@@ -183,6 +189,15 @@ export default {
       border-radius: 5px;
       position: relative;
       cursor: pointer;
+      &:hover {
+        color: #51b392;
+      }
+      &.draggable-handle {
+        cursor: grab;
+      }
+      &:active {
+        cursor: grabbing;
+      }
       .dropdown-menu {
         width: 100px;
         position: absolute;
