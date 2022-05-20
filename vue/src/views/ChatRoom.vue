@@ -9,17 +9,25 @@
     <div class="main">
       <!-- Left Menu -->
       <div class="left-menu">
-        <!-- アジェンダリスト -->
-        <div class="agendas" v-for="agenda in agendas" :key="agenda.id">
-          <chatroom-agenda
-            :agenda="agenda"
-            :selectedAgenda="selectedAgenda"
-            @select="onSelectAgenda"
-            @add-next="onAddNextAgenda"
-            @edit-name="onEditAgendaName"
-            @delete="onDeleteAgenda"
-          />
-        </div>
+        <vue-draggable
+          class="agendas"
+          v-model="room.agendas"
+          item-key="id"
+          :animation="300"
+          :delay="5"
+        >
+          <!-- アジェンダリスト -->
+          <template #item="{ element }">
+            <chatroom-agenda
+              :agenda="element"
+              :selectedAgenda="selectedAgenda"
+              @select="onSelectAgenda"
+              @add-next="onAddNextAgenda"
+              @edit-name="onEditAgendaName"
+              @delete="onDeleteAgenda"
+            />
+          </template>
+        </vue-draggable>
         <!-- アジェンダ追加ボタン -->
         <button class="agenda-add-button" @click="onClickAddButton">
           <fa-icon class="icon" icon="plus-square" />テーマを追加
@@ -107,12 +115,13 @@ import ChatroomNavbar from "@/components/Chatroom/ChatroomNavbar.vue";
 import ChatroomAgenda from "@/components/Chatroom/ChatroomAgenda.vue";
 import ChatroomItem from "@/components/Chatroom/ChatroomItem.vue";
 import ChatForm from "@/components/Chatroom/ChatForm.vue";
+import VueDraggable from "vuedraggable";
 import axios from "axios";
 import ActionCable from "actioncable";
 import { apiServer, axiosHeaders } from "@/mixin/auth";
 
 export default {
-  components: { ChatroomNavbar, ChatroomAgenda, ChatroomItem, ChatForm },
+  components: { ChatroomNavbar, ChatroomAgenda, ChatroomItem, ChatForm, VueDraggable },
   data() {
     return {
       roomChannel: null,
@@ -425,7 +434,6 @@ export default {
   created() {
     this.getRoom();
   },
-  mounted() {},
   beforeUnmount() {
     this.disconnectCable();
   },
