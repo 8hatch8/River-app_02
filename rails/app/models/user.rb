@@ -7,6 +7,6 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   # 【TODO】まとめて記述できるか？
-  has_many :rooms
+  has_many :rooms, dependent: :destroy
   has_many :items
 end

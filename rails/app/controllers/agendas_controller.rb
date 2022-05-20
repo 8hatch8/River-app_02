@@ -37,14 +37,9 @@ class AgendasController < ApplicationController
     agenda.position = agenda.position || count_all_agendas + 1
 
     if agenda.save
-      agenda_json = {
-        id: agenda.id,
-        name: agenda.name,
-        content: agenda.content,
-        position: agenda.position,
-        room_id: agenda.room_id,
-      }
-      render json: { message: '新規作成しました', agenda: agenda_json }, status: 200
+      render json: { message: '新規作成しました' }, status: 200
+      type = 'add_agenda'
+      broadcast_agenda(agenda, type)
     else
       render json: { message: '作成できませんでした', erros: agenda.errors.messages }, status: 400
     end
@@ -54,14 +49,9 @@ class AgendasController < ApplicationController
     agenda = Agenda.find(params[:id])
 
     if agenda.update(agenda_params)
-      agenda_json = {
-        id: agenda.id,
-        name: agenda.name,
-        content: agenda.content,
-        position: agenda.position,
-        room_id: agenda.room_id,
-      }
-      render json: { message: '更新しました', agenda: agenda_json }, status: 200
+      render json: { message: '更新しました' }, status: 200
+      type = 'update_agenda'
+      broadcast_agenda(agenda, type)
     else
       render json: { message: '更新できませんでした', erros: agenda.errors.messages }, status: 400
     end
@@ -71,6 +61,8 @@ class AgendasController < ApplicationController
     agenda = Agenda.find(params[:id])
     agenda.destroy
     render json: { message: '削除しました' }, status: 200
+    type = 'delete_agenda'
+    broadcast_agenda(agenda, type)
   end
 
   def move
@@ -85,5 +77,24 @@ class AgendasController < ApplicationController
 
   def agenda_params
     params.require(:agenda).permit(:name, :content, :position, :room_id)
+  end
+
+  def broadcast_agenda(agenda, type)
+    room_id = agenda.room_id
+    ActionCable.server.broadcast(
+      # 配信先
+      "room_channel_#{room_id}",
+      # 配信内容
+      {
+        type: type,
+        agenda: {
+          id: agenda.id,
+          name: agenda.name,
+          content: agenda.content,
+          position: agenda.position,
+          room_id: agenda.room_id,
+        },
+      },
+    )
   end
 end
