@@ -135,7 +135,7 @@ export default {
   data() {
     return {
       roomChannel: null,
-      user: { id: 1, nickname: "ゆたか" },
+      user: { id: 1, nickname: "テストユーザー" },
       room: {},
       selectedAgenda: {},
       mouseOverContent: false,
