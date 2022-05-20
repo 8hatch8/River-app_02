@@ -5,6 +5,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "start": "node server.js",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -14,6 +15,7 @@
     "actioncable": "^5.2.8",
     "axios": "^0.26.1",
     "core-js": "^3.6.5",
+    "express": "^4.18.1",
     "vue": "^3.0.0",
     "vue-axios": "^3.4.1",
     "vue-router": "^4.0.0-0",
@@ -32,6 +34,9 @@
     "eslint-plugin-vue": "^7.0.0",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2"
+  },
+  "engines": {
+    "node": "17.3.0"
   },
   "eslintConfig": {
     "root": true,
