@@ -6,20 +6,30 @@
     </div>
 
     <!-- メイン画面 -->
-    <div class="main">
+    <main class="main">
       <!-- Left Menu -->
       <div class="left-menu">
         <!-- アジェンダリスト -->
-        <div class="agendas" v-for="agenda in agendas" :key="agenda.id">
-          <chatroom-agenda
-            :agenda="agenda"
-            :selectedAgenda="selectedAgenda"
-            @select="onSelectAgenda"
-            @add-next="onAddNextAgenda"
-            @edit-name="onEditAgendaName"
-            @delete="onDeleteAgenda"
-          />
-        </div>
+        <vue-draggable
+          class="agendas"
+          v-model="room.agendas"
+          item-key="id"
+          :animation="300"
+          :delay="5"
+          handle=".draggable-handle"
+          @change="onDragAgenda"
+        >
+          <template #item="{ element }">
+            <chatroom-agenda
+              :agenda="element"
+              :selectedAgenda="selectedAgenda"
+              @select="onSelectAgenda"
+              @add-next="onAddNextAgenda"
+              @edit-name="onEditAgendaName"
+              @delete="onDeleteAgenda"
+            />
+          </template>
+        </vue-draggable>
         <!-- アジェンダ追加ボタン -->
         <button class="agenda-add-button" @click="onClickAddButton">
           <fa-icon class="icon" icon="plus-square" />テーマを追加
@@ -28,15 +38,15 @@
 
       <!-- Right View -->
       <div class="right-view">
+        <!-- アジェンダ 【TODO】コンポーネントとして切り出す-->
         <div class="right-top">
-          <!-- アジェンダ -->
-          <!-- 【TODO】コンポーネントとして切り出す -->
+          <!-- アジェンダ選択時 -->
           <template v-if="selectedAgenda.id > 0">
             <div class="agenda">
               <div class="agenda-title font-md">
                 {{ selectedAgenda.name }}
               </div>
-              <!-- 説明文 編集時 -->
+              <!-- 説明文（編集時） -->
               <template v-if="isEditingContent">
                 <input
                   v-model="selectedAgenda.content"
@@ -47,7 +57,7 @@
                   @blur="onBlurContent"
                 />
               </template>
-              <!-- 説明文 通常時 -->
+              <!-- 説明文（通常時） -->
               <template v-else>
                 <div
                   class="agenda-content"
@@ -61,6 +71,7 @@
             </div>
           </template>
 
+          <!-- アジェンダ未選択時 -->
           <template v-else>
             <div class="agenda">
               <div class="agenda-title font-md">
@@ -70,27 +81,34 @@
           </template>
 
           <!-- アイテムリスト -->
-          <div class="items">
-            <div
+          <vue-draggable
+            class="items"
+            v-model="selectedAgenda.items"
+            item-key="id"
+            :animation="300"
+            :delay="5"
+            handle=".draggable-handle"
+            @change="onDragItem"
+          >
+            <template
+              #item="{ element }"
               class="item"
               :class="{
-                'item-text': item.format === 'text',
-                'item-h1': item.format === 'heading-1',
-                'item-h2': item.format === 'heading-2',
-                'item-h3': item.format === 'heading-3',
+                'item-text': element.format === 'text',
+                'item-h1': element.format === 'heading-1',
+                'item-h2': element.format === 'heading-2',
+                'item-h3': element.format === 'heading-3',
               }"
-              v-for="item in items"
-              :key="item.id"
             >
               <chatroom-item
-                :item="item"
+                :item="element"
                 @add-next="onAddNextItem"
                 @edit-text="onEditItemText"
                 @delete="onDeleteItem"
                 @change-format="onChangeFormat"
               />
-            </div>
-          </div>
+            </template>
+          </vue-draggable>
         </div>
 
         <!-- 投稿フォーム -->
@@ -98,7 +116,7 @@
           <chat-form @post="onPost" />
         </div>
       </div>
-    </div>
+    </main>
   </div>
 </template>
 
@@ -107,12 +125,13 @@ import ChatroomNavbar from "@/components/Chatroom/ChatroomNavbar.vue";
 import ChatroomAgenda from "@/components/Chatroom/ChatroomAgenda.vue";
 import ChatroomItem from "@/components/Chatroom/ChatroomItem.vue";
 import ChatForm from "@/components/Chatroom/ChatForm.vue";
+import VueDraggable from "vuedraggable";
 import axios from "axios";
 import ActionCable from "actioncable";
 import { apiServer, axiosHeaders } from "@/mixin/auth";
 
 export default {
-  components: { ChatroomNavbar, ChatroomAgenda, ChatroomItem, ChatForm },
+  components: { ChatroomNavbar, ChatroomAgenda, ChatroomItem, ChatForm, VueDraggable },
   data() {
     return {
       roomChannel: null,
@@ -121,8 +140,6 @@ export default {
       selectedAgenda: {},
       mouseOverContent: false,
       isEditingContent: false,
-      // for dev 後で消す
-      res: null,
     };
   },
   computed: {
@@ -142,6 +159,7 @@ export default {
       this.postAgenda();
     },
     onAddNextAgenda(agenda) {
+      // 【TODO】positionの処理をここに移す
       this.postAgenda(agenda);
     },
     onEditAgendaName(agenda, editedName) {
@@ -151,6 +169,14 @@ export default {
     },
     onDeleteAgenda(agenda) {
       this.deleteAgenda(agenda);
+    },
+    onDragAgenda(arg) {
+      if (!arg.moved) return;
+      const agenda = this.room.agendas.find((agenda) => {
+        return agenda === arg.moved.element;
+      });
+      agenda.position = arg.moved.newIndex + 1;
+      this.dragAgenda(agenda);
     },
     // 右ビュー：Content
     onClickContent() {
@@ -191,6 +217,14 @@ export default {
       const editedItem = { ...item };
       editedItem.format = format;
       this.putItem(editedItem);
+    },
+    onDragItem(arg) {
+      if (!arg.moved) return;
+      const item = this.selectedAgenda.items.find((item) => {
+        return item === arg.moved.element;
+      });
+      item.position = arg.moved.newIndex + 1;
+      this.dragItem(item);
     },
     // 右ビュー：ChatForm
     onPost(text) {
@@ -233,6 +267,18 @@ export default {
       try {
         const res = await axios.delete(
           `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${item.id}`,
+          { headers: axiosHeaders() }
+        );
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    async dragItem(item) {
+      try {
+        const res = await axios.patch(
+          `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${item.id}/move`,
+          { item: item },
           { headers: axiosHeaders() }
         );
         console.log(res);
@@ -300,6 +346,18 @@ export default {
         console.log(e);
       }
     },
+    async dragAgenda(agenda) {
+      try {
+        const res = await axios.patch(
+          `${apiServer}/rooms/${this.room.id}/agendas/${agenda.id}/move`,
+          { agenda: agenda },
+          { headers: axiosHeaders() }
+        );
+        console.log(res);
+      } catch (e) {
+        console.log(e);
+      }
+    },
     // API Communication：Room
     async getRoom(roomId = 1) {
       try {
@@ -311,7 +369,6 @@ export default {
         }
         console.log("チャットルーム情報を取得しました");
         this.room = res.data;
-        this.connectCable();
       } catch (e) {
         console.log(e);
       }
@@ -355,9 +412,6 @@ export default {
               case "add_agenda":
                 this.getRoom();
                 break;
-              // case "move_agenda":
-              //   this.getRoom();
-              //   break;
               case "update_agenda": {
                 const targetAgenda = this.room.agendas.find((agenda) => {
                   return agenda.id === data.agenda.id;
@@ -387,6 +441,9 @@ export default {
                 }
                 break;
               }
+              case "move_agenda":
+                this.getRoom();
+                break;
               case "post_item":
                 if (data.item.agenda_id === this.selectedAgenda.id) {
                   const agenda = { id: data.item.agenda_id };
@@ -406,10 +463,17 @@ export default {
                 const targetItem = this.selectedAgenda.items.find((item) => {
                   return item.id === data.item.id;
                 });
-                if (targetItem) {
-                  const index = this.selectedAgenda.items.indexOf(targetItem);
-                  this.selectedAgenda.items.splice(index, 1);
-                }
+                if (!targetItem) return;
+                const index = this.selectedAgenda.items.indexOf(targetItem);
+                this.selectedAgenda.items.splice(index, 1);
+                break;
+              }
+              case "move_item": {
+                const targetItem = this.selectedAgenda.items.find((item) => {
+                  return item.id === data.item.id;
+                });
+                if (!targetItem) return;
+                this.getAgenda(this.selectedAgenda);
                 break;
               }
             }
@@ -425,9 +489,13 @@ export default {
   created() {
     this.getRoom();
   },
-  mounted() {},
   beforeUnmount() {
     this.disconnectCable();
+  },
+  watch: {
+    "room.id"() {
+      this.connectCable();
+    },
   },
 };
 </script>
