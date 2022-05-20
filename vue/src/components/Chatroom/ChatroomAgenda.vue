@@ -26,6 +26,10 @@
 
         <!-- 操作ボタン -->
         <div class="buttons" v-if="mouseOver">
+          <!-- アジェンダ移動 -->
+          <div class="button-icon draggable-handle">
+            <fa-icon icon="grip-lines" />
+          </div>
           <!-- アジェンダ追加 -->
           <div class="button-icon" @click.stop="onClickAddNext(agenda)">
             <fa-icon icon="plus-circle" />
@@ -140,6 +144,12 @@ export default {
       border-radius: 5px;
       &:hover {
         color: #51b392;
+      }
+      &.draggable-handle {
+        cursor: grab;
+      }
+      &:active {
+        cursor: grabbing;
       }
     }
   }

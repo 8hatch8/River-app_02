@@ -16,6 +16,7 @@
           item-key="id"
           :animation="300"
           :delay="5"
+          handle=".draggable-handle"
           @change="onDragAgenda"
         >
           <template #item="{ element }">
