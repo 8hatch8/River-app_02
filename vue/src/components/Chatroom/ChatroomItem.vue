@@ -23,7 +23,7 @@
         <!-- アイコン -->
         <div class="icon">
           <div><fa-icon icon="user" /></div>
-          <div class="nickname">name</div>
+          <div class="nickname">{{ item.user_name }}</div>
         </div>
         <!-- テキスト -->
         <div class="text">

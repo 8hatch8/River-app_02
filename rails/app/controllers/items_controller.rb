@@ -70,6 +70,7 @@ class ItemsController < ApplicationController
           position: item.position,
           user_id: item.user_id,
           agenda_id: item.agenda_id,
+          user_name: item.user.nickname,
         },
       },
     )

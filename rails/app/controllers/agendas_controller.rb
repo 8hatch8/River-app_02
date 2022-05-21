@@ -2,7 +2,7 @@ class AgendasController < ApplicationController
   before_action :authenticate_user!
 
   def show
-    agenda = Agenda.includes(:items).find(params[:id])
+    agenda = Agenda.includes(:items).includes(:user).find(params[:id])
 
     # agendaがもつitemsを取得
     items_json =
@@ -16,6 +16,7 @@ class AgendasController < ApplicationController
             format: item.format,
             position: item.position,
             user_id: item.user_id,
+            user_name: item.user.nickname,
           }
         end
 

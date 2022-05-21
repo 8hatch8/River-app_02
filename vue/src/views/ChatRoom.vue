@@ -236,6 +236,9 @@ export default {
       };
       this.postItem(item);
     },
+    getUser() {
+      this.user.nickname = window.localStorage.getItem("nickname");
+    },
     // API Communication：Item
     async postItem(item) {
       try {
@@ -487,6 +490,7 @@ export default {
   },
   created() {
     this.getRoom();
+    this.getUser();
   },
   beforeUnmount() {
     this.disconnectCable();
