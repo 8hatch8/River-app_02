@@ -359,7 +359,7 @@ export default {
       }
     },
     // API Communication：Room
-    async getRoom(roomId = 1) {
+    async getRoom(roomId = 4) {
       try {
         const res = await axios.get(`${apiServer}/rooms/${roomId}`, {
           headers: axiosHeaders(),
