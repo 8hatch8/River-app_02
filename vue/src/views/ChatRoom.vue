@@ -395,7 +395,7 @@ export default {
     },
     // ActionCable
     connectCable() {
-      const cable = ActionCable.createConsumer("https://river-api-37275.herokuapp.com/cable"); // http:ならws:、https:ならwss:
+      const cable = ActionCable.createConsumer("river-api-37275.herokuapp.com/cable"); // http:ならws:、https:ならwss:
       this.roomChannel = cable.subscriptions.create(
         {
           channel: `RoomChannel`, // Rails: channels/room_channel.rb
