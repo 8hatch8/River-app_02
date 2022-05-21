@@ -41,8 +41,17 @@ Rails.application.configure do
   config.action_cable.allowed_request_origins = [
     'https://river-test2-37275.herokuapp.com',
     'http://river-test2-37275.herokuapp.com',
-    ENV['REDIS_URL'],
+    ENV['HEROKU_REDIS_BLUE_TLS_URL'],
   ]
+
+  config.cache_store =
+    :redis_cache_store,
+    {
+      url: ENV['HEROKU_REDIS_BLUE_TLS_URL'],
+      ssl_params: {
+        verify_mode: OpenSSL::SSL::VERIFY_NONE,
+      },
+    }
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   # config.force_ssl = true
