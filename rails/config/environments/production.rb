@@ -38,9 +38,10 @@ Rails.application.configure do
 
   ActionCable.server.config.disable_request_forgery_protection = true
   config.action_cable.url = 'wss://river-test2-37275.herokuapp.com/cable'
-  config.action_cable.allowed_request_origins = %w[
-    https://river-test2-37275.herokuapp.com
-    http://river-test2-37275.herokuapp.com
+  config.action_cable.allowed_request_origins = [
+    'https://river-test2-37275.herokuapp.com',
+    'http://river-test2-37275.herokuapp.com',
+    ENV['HEROKU_REDIS_BLUE_TLS_URL'],
   ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
