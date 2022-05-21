@@ -1,5 +1,5 @@
 //const apiServer = "http://localhost:3000";
-const apiServer = "";
+const apiServer = "https://river-api-37275.herokuapp.com";
 
 const removeItem = () => {
   window.localStorage.removeItem("uid");
