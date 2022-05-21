@@ -18,16 +18,15 @@
 <script>
 import axios from "axios";
 import LogoutButton from "@/components/share/Button.vue";
-import { removeItem } from "@/mixin/auth";
+import { removeItem, apiServer } from "@/mixin/auth";
 export default {
   name: "ChatroomNavbar",
   components: { LogoutButton },
   props: ["room", "user"],
   methods: {
     async logout() {
-      const server = "http://localhost:3000";
       try {
-        const res = await axios.delete(`${server}/auth/sign_out/`, {
+        const res = await axios.delete(`${apiServer}/auth/sign_out/`, {
           headers: {
             uid: window.localStorage.getItem("uid"),
             "access-token": window.localStorage.getItem("access-token"),

@@ -45,7 +45,7 @@
 import axios from "axios";
 import InputBox from "@/components/share/InputBox.vue";
 import FormButton from "@/components/share/Button.vue";
-import { setItem } from "@/mixin/auth";
+import { setItem, apiServer } from "@/mixin/auth";
 export default {
   components: { InputBox, FormButton },
   emits: ["show-signup-form", "redirect-to-chatroom"],
@@ -66,7 +66,7 @@ export default {
       this.error = null;
 
       try {
-        const response = await axios.post("http://localhost:3000/auth/sign_in", {
+        const response = await axios.post(`${apiServer}/auth/sign_in`, {
           email: this.form.email,
           password: this.form.password,
         });

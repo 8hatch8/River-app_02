@@ -1,5 +1,5 @@
 import axios from "axios";
-import { removeItem, axiosHeaders } from "./auth";
+import { removeItem, axiosHeaders, apiServer } from "./auth";
 import { ref } from "vue";
 const error = ref(null);
 
@@ -7,7 +7,7 @@ const validate = async () => {
   error.value = null;
 
   try {
-    const response = await axios.get("http://localhost:3000/auth/validate_token", {
+    const response = await axios.get(`${apiServer}/auth/validate_token`, {
       headers: axiosHeaders(),
     });
     if (!response) {
