@@ -42,6 +42,9 @@ Rails.application.configure do
     'https://river-test2-37275.herokuapp.com',
     'http://river-test2-37275.herokuapp.com',
     ENV['HEROKU_REDIS_BLUE_TLS_URL'],
+    ENV['HEROKU_REDIS_BLUE_URL'],
+    ENV['REDIS_TLS_URL'],
+    ENV['REDIS_URL'],
   ]
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
