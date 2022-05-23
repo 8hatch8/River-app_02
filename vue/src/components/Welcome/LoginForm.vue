@@ -7,9 +7,9 @@
       </h1>
     </div>
     <div class="subtitle">
-      <h2 class="font-md">ログイン</h2>
-      <p class="font-sm">みんなの意見が会議をかえる</p>
+      <p class="font-sm">オンライン会議がもっと楽しくなるチャットアプリ</p>
     </div>
+    <h2 class="font-md">ログイン</h2>
     <form class="Form" @submit.prevent="login">
       <input-box
         id="email"
