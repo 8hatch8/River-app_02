@@ -1,5 +1,5 @@
 import axios from "axios";
-import { removeItem, axiosHeaders, apiServer } from "./auth";
+import { removeItem, axiosHeaders, apiServer } from "@/mixin/auth";
 import { ref } from "vue";
 const error = ref(null);
 
