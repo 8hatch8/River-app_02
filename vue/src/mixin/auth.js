@@ -1,5 +1,4 @@
-//const apiServer = "http://localhost:3000";
-const apiServer = "https://river-api-37275.herokuapp.com";
+const apiServer = process.env.VUE_APP_RIVER_API_URL;
 
 const removeItem = () => {
   window.localStorage.removeItem("uid");
