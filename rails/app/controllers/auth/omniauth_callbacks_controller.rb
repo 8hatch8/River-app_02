@@ -19,7 +19,7 @@ class Auth::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCallbacksCont
   end
 
   def get_resource_from_auth_hash
-    # superでは@recource（Userのインスタンス）にauth_hashの値を代入
+    # @recource（Userのインスタンス）にauth_hashの値が代入される
     super
 
     # デフォルトがnameであるnicknameには、superで値が代入されないため、追加で設定
