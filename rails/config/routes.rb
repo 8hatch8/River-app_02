@@ -3,6 +3,7 @@ Rails.application.routes.draw do
                               at: 'auth',
                               controllers: {
                                 registrations: 'auth/registrations',
+                                omniauth_callbacks: 'auth/omniauth_callbacks',
                               }
   resources :rooms, only: %i[index show create update destroy] do
     resources :agendas, only: %i[show create update destroy] do
