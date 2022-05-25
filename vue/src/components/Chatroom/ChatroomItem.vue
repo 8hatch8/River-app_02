@@ -263,6 +263,7 @@ $river-green: #51b392;
     .check-box {
       padding-top: 2px;
       font-size: 1.4rem;
+      cursor: pointer;
     }
     .text {
       padding-left: 7px;
