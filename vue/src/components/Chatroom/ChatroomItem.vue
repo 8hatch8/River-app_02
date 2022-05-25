@@ -182,6 +182,7 @@ $river-green: #51b392;
   }
   .item-text {
     display: flex;
+    margin-left: 20px;
     .icon {
       width: 50px;
       height: 50px;
@@ -202,7 +203,7 @@ $river-green: #51b392;
   }
   .item-comment {
     display: flex;
-    margin-left: 17px;
+    margin-left: 37px;
     border-left: 4px dotted #666;
     padding-left: 15px;
 
@@ -237,20 +238,24 @@ $river-green: #51b392;
     &.heading-2 {
       color: $river-green;
       font-size: 2rem;
+      margin-left: 15px;
     }
     &.heading-3 {
       color: rgb(110, 110, 110);
       font-size: 1.5rem;
+      margin-left: 23px;
       padding-left: 8px;
       border-left: 8px solid rgb(110, 110, 110);
     }
   }
   .item-list {
     font-size: 1rem;
+    margin-left: 22px;
   }
   .item-check {
     font-size: 1rem;
     display: flex;
+    margin-left: 20px;
     &.false {
       color: $river-green;
     }

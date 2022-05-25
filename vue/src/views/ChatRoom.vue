@@ -90,16 +90,7 @@
             handle=".draggable-handle"
             @change="onDragItem"
           >
-            <template
-              #item="{ element }"
-              class="item"
-              :class="{
-                'item-text': element.format === 'text',
-                'item-h1': element.format === 'heading-1',
-                'item-h2': element.format === 'heading-2',
-                'item-h3': element.format === 'heading-3',
-              }"
-            >
+            <template #item="{ element }" class="item">
               <chatroom-item
                 :item="element"
                 @add-next="onAddNextItem"
@@ -548,21 +539,9 @@ export default {
           padding: 10px;
         }
       }
-      // アイテムのインデント
+      // アイテムリスト
       .items {
         padding-bottom: 200px;
-        .item-h1 {
-          margin-left: 0px;
-        }
-        .item-h2 {
-          margin-left: 20px;
-        }
-        .item-h3 {
-          margin-left: 40px;
-        }
-        .item-text {
-          margin-left: 40px;
-        }
       }
     }
     .chat-form {
