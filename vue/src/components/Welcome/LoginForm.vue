@@ -38,6 +38,8 @@
       はじめての方は
       <span class="underline" @click="showSignupForm">こちら</span>
     </p>
+    <p>もしくは</p>
+    <p class="underline" @click="loginGoogleAuth">Googleでログイン</p>
   </div>
 </template>
 
@@ -45,7 +47,7 @@
 import axios from "axios";
 import InputBox from "@/components/share/InputBox.vue";
 import FormButton from "@/components/share/Button.vue";
-import { setItem, apiServer } from "@/mixin/auth";
+import { setItem, apiServer, appServer } from "@/mixin/auth";
 export default {
   components: { InputBox, FormButton },
   emits: ["show-signup-form", "redirect-to-chatroom"],
@@ -58,32 +60,39 @@ export default {
       error: null,
     };
   },
+  computed: {
+    googleLoginURL() {
+      return `${apiServer}/auth/google_oauth2?auth_origin_url=${encodeURI(
+        appServer
+      )}/omniauth/google_oauth2/callback`;
+    },
+  },
   methods: {
     showSignupForm() {
       this.$emit("show-signup-form");
     },
+    loginGoogleAuth() {
+      location.href = this.googleLoginURL;
+    },
     async login() {
       this.error = null;
-
       try {
         const response = await axios.post(`${apiServer}/auth/sign_in`, {
           email: this.form.email,
           password: this.form.password,
         });
-
+        // サーバーからレスポンスがない場合
         if (!response) {
-          throw new Error("メールアドレスかパスワードが違います");
+          throw new Error("通信に失敗しました");
         }
-
+        // 成功
         if (!this.error) {
           // ローカルストレージに認証情報を保存
           setItem(response);
-          // ChatRoomへリダイレクト
           this.$emit("redirect-to-chatroom");
         }
-
-        console.log({ response });
         return response;
+        // 失敗
       } catch (error) {
         console.log({ error });
         this.error = "メールアドレスかパスワードが違います";

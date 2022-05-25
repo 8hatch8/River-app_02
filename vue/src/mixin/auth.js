@@ -1,4 +1,5 @@
 const apiServer = process.env.VUE_APP_RIVER_API_URL;
+const appServer = process.env.VUE_APP_RIVER_APP_URL;
 
 const removeItem = () => {
   window.localStorage.removeItem("uid");
@@ -36,4 +37,4 @@ const axiosHeaders = () => {
   };
 };
 
-export { setItem, removeItem, getItem, apiServer, axiosHeaders };
+export { setItem, removeItem, getItem, apiServer, appServer, axiosHeaders };
