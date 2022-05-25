@@ -495,6 +495,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+$river-green: #51b392;
 .navbar {
   height: 60px;
   background-color: #999;
@@ -527,8 +528,12 @@ export default {
     .right-top {
       height: calc(100% - 60px);
       .agenda {
-        padding: 10px;
-        border: dotted 2px #999;
+        padding: 10px 20px;
+        margin-left: -15px;
+        margin-right: -30px;
+        border-left: 8px solid $river-green;
+        background: #e4fcff;
+        box-shadow: 0 3px 4px rgba(0, 0, 0, 0.3);
         .agenda-title {
         }
         .agenda-content {
