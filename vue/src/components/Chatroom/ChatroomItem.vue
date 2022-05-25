@@ -79,21 +79,32 @@
           <fa-icon icon="grip-lines" />
         </div>
         <!-- アイテム追加 -->
-        <div class="button-icon" @click.stop="onClickAddNext(item)">
+        <div class="button-icon" @click.stop="toggleMenuAddNext = !toggleMenuAddNext">
           <fa-icon icon="plus-circle" />
+          <!-- ドロップダウンメニュー -->
+          <div v-if="toggleMenuAddNext" class="dropdown-menu">
+            <a class="dropdown-item" @click="onClickAddNext(item, 'heading-1')">見出し1</a>
+            <a class="dropdown-item" @click="onClickAddNext(item, 'heading-2')">見出し2</a>
+            <a class="dropdown-item" @click="onClickAddNext(item, 'heading-3')">見出し3</a>
+            <a class="dropdown-item" @click="onClickAddNext(item, 'text')">テキスト</a>
+            <a class="dropdown-item" @click="onClickAddNext(item, 'comment')">コメント</a>
+            <a class="dropdown-item" @click="onClickAddNext(item, 'list')">リスト</a>
+            <a class="dropdown-item" @click="onClickAddNext(item, 'check-false')">チェックリスト</a>
+          </div>
         </div>
-        <!-- text編集 -->
+        <!-- テキスト編集 -->
         <div class="button-icon" @click.stop="onClickEdit">
           <fa-icon icon="edit" />
         </div>
-        <!-- アジェンダ削除 -->
+        <!-- アイテム削除 -->
         <div class="button-icon" @click.stop="onClickDelete(item)">
           <fa-icon icon="trash" />
         </div>
-        <!-- コンフィグ -->
+        <!-- フォーマット変更 -->
         <div class="button-icon">
-          <fa-icon icon="ellipsis-h" @click="toggle = !toggle" />
-          <div v-if="toggle" class="dropdown-menu">
+          <fa-icon icon="ellipsis-h" @click="toggleMenuFormat = !toggleMenuFormat" />
+          <!-- ドロップダウンメニュー -->
+          <div v-if="toggleMenuFormat" class="dropdown-menu">
             <a class="dropdown-item" @click="onClickFormat(item, 'heading-1')">見出し1</a>
             <a class="dropdown-item" @click="onClickFormat(item, 'heading-2')">見出し2</a>
             <a class="dropdown-item" @click="onClickFormat(item, 'heading-3')">見出し3</a>
@@ -118,7 +129,8 @@ export default {
       text: this.item.text,
       mouseOver: false,
       isEditing: false,
-      toggle: false,
+      toggleMenuFormat: false,
+      toggleMenuAddNext: false,
     };
   },
   methods: {
@@ -151,8 +163,8 @@ export default {
       if (this.text === this.item.text) return;
       this.$emit("edit-text", item, this.text);
     },
-    onClickAddNext(item) {
-      this.$emit("add-next", item);
+    onClickAddNext(item, format) {
+      this.$emit("add-next", item, format);
     },
     onClickFormat(item, format = "text") {
       if (item.format === format) return;
@@ -301,7 +313,7 @@ $river-green: #51b392;
         width: 120px;
         position: absolute;
         right: 0px;
-        z-index: 20;
+        z-index: 30;
         display: flex;
         flex-direction: column;
         background-color: rgb(240, 240, 240);

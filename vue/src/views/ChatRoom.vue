@@ -187,10 +187,10 @@ export default {
       this.putAgenda(this.selectedAgenda);
     },
     // 右ビュー：Item
-    onAddNextItem(targetItem) {
+    onAddNextItem(targetItem, format) {
       const item = {
         text: "新規アイテム",
-        format: "text",
+        format: format,
         position: targetItem.position + 1,
         agenda_id: this.selectedAgenda.id,
       };
