@@ -4,118 +4,190 @@
     :class="{ mouseover: mouseOver && !isEditing }"
     @mouseover="onMouseOver"
     @mouseleave="onMouseLeave"
+    @dblclick="onClickEdit"
   >
-    <!-- 編集時 -->
-    <template v-if="isEditing">
-      <input
-        v-model="text"
-        ref="editBox"
-        class="input-box"
-        onfocus="this.select()"
-        @keypress.enter="onKeypressEnter"
-        @blur="onEditEnd(item)"
-      />
-    </template>
+    <!-- type:テキスト -->
+    <div v-if="item.format === 'text'" class="item item-text">
+      <!-- アイコン -->
+      <div class="icon fa-2x">
+        <fa-icon icon="user" />
+      </div>
+      <div class="body">
+        <div class="head">{{ item.user_name }}</div>
+        <!-- テキスト -->
+        <div v-if="!isEditing" class="text">{{ item.text }}</div>
 
-    <template v-else>
-      <!-- type:テキスト -->
-      <div v-if="item.format === 'text'" class="item item-text">
-        <!-- アイコン -->
-        <div class="icon fa-2x">
-          <fa-icon icon="user" />
-        </div>
-        <div class="body">
-          <div class="head">{{ item.user_name }}</div>
-          <!-- テキスト -->
-          <div class="text">{{ item.text }}</div>
+        <!-- 編集時 -->
+        <div v-else>
+          <input
+            v-model="text"
+            ref="editBox"
+            class="input-box text"
+            onfocus="this.select()"
+            @keypress.enter="onKeypressEnter"
+            @blur="onEditEnd(item)"
+          />
         </div>
       </div>
+    </div>
 
-      <!-- type:コメント -->
-      <div v-if="item.format === 'comment'" class="item item-comment">
-        <!-- アイコン -->
-        <div class="icon fa-2x">
-          <fa-icon icon="user" />
-        </div>
-        <div class="body">
-          <div class="head">{{ item.user_name }}</div>
-          <!-- テキスト -->
-          <div class="text">{{ item.text }}</div>
+    <!-- type:コメント -->
+    <div v-if="item.format === 'comment'" class="item item-comment">
+      <!-- アイコン -->
+      <div class="icon fa-2x">
+        <fa-icon icon="user" />
+      </div>
+      <div class="body">
+        <div class="head">{{ item.user_name }}</div>
+        <!-- テキスト -->
+        <div v-if="!isEditing" class="text">{{ item.text }}</div>
+        <!-- 編集時 -->
+        <div v-else>
+          <input
+            v-model="text"
+            ref="editBox"
+            class="input-box text"
+            onfocus="this.select()"
+            @keypress.enter="onKeypressEnter"
+            @blur="onEditEnd(item)"
+          />
         </div>
       </div>
+    </div>
 
-      <!-- type:見出し -->
-      <div v-if="item.format === 'heading-1'" class="item item-heading heading-1">
-        {{ item.text }}
-      </div>
-      <div v-if="item.format === 'heading-2'" class="item item-heading heading-2">
-        {{ item.text }}
-      </div>
-      <div v-if="item.format === 'heading-3'" class="item item-heading heading-3">
-        {{ item.text }}
-      </div>
-      <!-- type:リスト -->
-      <div v-if="item.format === 'list'" class="item item-list">
-        {{ "● " + item.text }}
-      </div>
-      <!-- type:チェックボックス -->
-      <div v-if="item.format === 'check-false'" class="item item-check false">
-        <fa-icon icon="minus-square" class="check-box" @click="onClickFormat(item, 'check-true')" />
-        <div class="text">{{ item.text }}</div>
-      </div>
-      <div v-if="item.format === 'check-true'" class="item item-check true">
-        <fa-icon
-          icon="check-square"
-          class="check-box"
-          @click="onClickFormat(item, 'check-false')"
+    <!-- type:見出し -->
+    <div v-if="item.format === 'heading-1'" class="item item-heading heading-1">
+      <div v-if="!isEditing">{{ item.text }}</div>
+      <!-- 編集時 -->
+      <div v-else>
+        <input
+          v-model="text"
+          ref="editBox"
+          class="input-box text"
+          onfocus="this.select()"
+          @keypress.enter="onKeypressEnter"
+          @blur="onEditEnd(item)"
         />
-        <div class="text">{{ item.text }}</div>
       </div>
+    </div>
+    <div v-if="item.format === 'heading-2'" class="item item-heading heading-2">
+      <div v-if="!isEditing">{{ item.text }}</div>
+      <!-- 編集時 -->
+      <div v-else>
+        <input
+          v-model="text"
+          ref="editBox"
+          class="input-box text"
+          onfocus="this.select()"
+          @keypress.enter="onKeypressEnter"
+          @blur="onEditEnd(item)"
+        />
+      </div>
+    </div>
+    <div v-if="item.format === 'heading-3'" class="item item-heading heading-3">
+      <div v-if="!isEditing">{{ item.text }}</div>
+      <!-- 編集時 -->
+      <div v-else>
+        <input
+          v-model="text"
+          ref="editBox"
+          class="input-box text"
+          onfocus="this.select()"
+          @keypress.enter="onKeypressEnter"
+          @blur="onEditEnd(item)"
+        />
+      </div>
+    </div>
+    <!-- type:リスト -->
+    <div v-if="item.format === 'list'" class="item item-list">
+      <div v-if="!isEditing">{{ "● " + item.text }}</div>
+      <!-- 編集時 -->
+      <div v-else>
+        <input
+          v-model="text"
+          ref="editBox"
+          class="input-box text"
+          onfocus="this.select()"
+          @keypress.enter="onKeypressEnter"
+          @blur="onEditEnd(item)"
+        />
+      </div>
+    </div>
+    <!-- type:チェックボックス -->
+    <div v-if="item.format === 'check-false'" class="item item-check false">
+      <fa-icon icon="minus-square" class="check-box" @click="onClickFormat(item, 'check-true')" />
+      <div v-if="!isEditing" class="text">{{ item.text }}</div>
+      <!-- 編集時 -->
+      <div v-else class="text">
+        <input
+          v-model="text"
+          ref="editBox"
+          class="input-box"
+          onfocus="this.select()"
+          @keypress.enter="onKeypressEnter"
+          @blur="onEditEnd(item)"
+        />
+      </div>
+    </div>
+    <div v-if="item.format === 'check-true'" class="item item-check true">
+      <fa-icon icon="check-square" class="check-box" @click="onClickFormat(item, 'check-false')" />
+      <div v-if="!isEditing" class="text">{{ item.text }}</div>
+      <!-- 編集時 -->
+      <div v-else>
+        <input
+          v-model="text"
+          ref="editBox"
+          class="input-box text"
+          onfocus="this.select()"
+          @keypress.enter="onKeypressEnter"
+          @blur="onEditEnd(item)"
+        />
+      </div>
+    </div>
 
-      <!-- 操作ボタン -->
-      <div class="buttons" v-if="mouseOver">
-        <!-- アイテム移動 -->
-        <div class="button-icon draggable-handle">
-          <fa-icon icon="grip-lines" />
-        </div>
-        <!-- アイテム追加 -->
-        <div class="button-icon" @click.stop="toggleMenuAddNext = !toggleMenuAddNext">
-          <fa-icon icon="plus-circle" />
-          <!-- ドロップダウンメニュー -->
-          <div v-if="toggleMenuAddNext" class="dropdown-menu">
-            <a class="dropdown-item" @click="onClickAddNext(item, 'heading-1')">見出し1</a>
-            <a class="dropdown-item" @click="onClickAddNext(item, 'heading-2')">見出し2</a>
-            <a class="dropdown-item" @click="onClickAddNext(item, 'heading-3')">見出し3</a>
-            <a class="dropdown-item" @click="onClickAddNext(item, 'text')">テキスト</a>
-            <a class="dropdown-item" @click="onClickAddNext(item, 'comment')">コメント</a>
-            <a class="dropdown-item" @click="onClickAddNext(item, 'list')">リスト</a>
-            <a class="dropdown-item" @click="onClickAddNext(item, 'check-false')">チェックリスト</a>
-          </div>
-        </div>
-        <!-- テキスト編集 -->
-        <div class="button-icon" @click.stop="onClickEdit">
-          <fa-icon icon="edit" />
-        </div>
-        <!-- アイテム削除 -->
-        <div class="button-icon" @click.stop="onClickDelete(item)">
-          <fa-icon icon="trash" />
-        </div>
-        <!-- フォーマット変更 -->
-        <div class="button-icon">
-          <fa-icon icon="ellipsis-h" @click="toggleMenuFormat = !toggleMenuFormat" />
-          <!-- ドロップダウンメニュー -->
-          <div v-if="toggleMenuFormat" class="dropdown-menu">
-            <a class="dropdown-item" @click="onClickFormat(item, 'heading-1')">見出し1</a>
-            <a class="dropdown-item" @click="onClickFormat(item, 'heading-2')">見出し2</a>
-            <a class="dropdown-item" @click="onClickFormat(item, 'heading-3')">見出し3</a>
-            <a class="dropdown-item" @click="onClickFormat(item, 'text')">テキスト</a>
-            <a class="dropdown-item" @click="onClickFormat(item, 'comment')">コメント</a>
-            <a class="dropdown-item" @click="onClickFormat(item, 'list')">リスト</a>
-            <a class="dropdown-item" @click="onClickFormat(item, 'check-false')">チェックリスト</a>
-          </div>
+    <!-- 操作ボタン -->
+    <div class="buttons" v-if="mouseOver && !isEditing">
+      <!-- アイテム移動 -->
+      <div class="button-icon draggable-handle">
+        <fa-icon icon="grip-lines" />
+      </div>
+      <!-- アイテム追加 -->
+      <div class="button-icon" @click.stop="toggleMenuAddNext = !toggleMenuAddNext">
+        <fa-icon icon="plus-circle" />
+        <!-- ドロップダウンメニュー -->
+        <div v-if="toggleMenuAddNext" class="dropdown-menu">
+          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-1')">見出し1</a>
+          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-2')">見出し2</a>
+          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-3')">見出し3</a>
+          <a class="dropdown-item" @click="onClickAddNext(item, 'text')">テキスト</a>
+          <a class="dropdown-item" @click="onClickAddNext(item, 'comment')">コメント</a>
+          <a class="dropdown-item" @click="onClickAddNext(item, 'list')">リスト</a>
+          <a class="dropdown-item" @click="onClickAddNext(item, 'check-false')">チェックリスト</a>
         </div>
       </div>
-    </template>
+      <!-- テキスト編集 -->
+      <div class="button-icon" @click.stop="onClickEdit">
+        <fa-icon icon="edit" />
+      </div>
+      <!-- アイテム削除 -->
+      <div class="button-icon" @click.stop="onClickDelete(item)">
+        <fa-icon icon="trash" />
+      </div>
+      <!-- フォーマット変更 -->
+      <div class="button-icon">
+        <fa-icon icon="ellipsis-h" @click="toggleMenuFormat = !toggleMenuFormat" />
+        <!-- ドロップダウンメニュー -->
+        <div v-if="toggleMenuFormat" class="dropdown-menu">
+          <a class="dropdown-item" @click="onClickFormat(item, 'heading-1')">見出し1</a>
+          <a class="dropdown-item" @click="onClickFormat(item, 'heading-2')">見出し2</a>
+          <a class="dropdown-item" @click="onClickFormat(item, 'heading-3')">見出し3</a>
+          <a class="dropdown-item" @click="onClickFormat(item, 'text')">テキスト</a>
+          <a class="dropdown-item" @click="onClickFormat(item, 'comment')">コメント</a>
+          <a class="dropdown-item" @click="onClickFormat(item, 'list')">リスト</a>
+          <a class="dropdown-item" @click="onClickFormat(item, 'check-false')">チェックリスト</a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -140,7 +212,8 @@ export default {
     },
     onMouseLeave() {
       this.mouseOver = false;
-      this.toggle = false;
+      this.toggleMenuFormat = false;
+      this.toggleMenuAddNext = false;
     },
     // 操作メニュー
     onClickDelete(item) {
@@ -187,7 +260,12 @@ $river-green: #51b392;
     background-color: rgba(255, 255, 255, 0.5);
   }
   .input-box {
-    font-size: 1.2rem;
+    width: 100%;
+    color: rgb(11, 73, 136);
+    border: none;
+    border-bottom: 1px solid #555;
+    outline: none;
+    background-color: aliceblue;
   }
   .item {
     width: 100%;
@@ -261,6 +339,7 @@ $river-green: #51b392;
     }
   }
   .item-list {
+    width: 100%;
     font-size: 1rem;
     margin-left: 22px;
   }
@@ -283,6 +362,7 @@ $river-green: #51b392;
       cursor: pointer;
     }
     .text {
+      width: 100%;
       padding-left: 7px;
     }
   }
