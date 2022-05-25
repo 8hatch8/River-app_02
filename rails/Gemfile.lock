@@ -1,3 +1,20 @@
+GIT
+  remote: https://github.com/arunagw/omniauth-twitter.git
+  revision: 41c7be0f169dfd816a78f533b89047e6b29fe0bc
+  specs:
+    omniauth-twitter (1.4.0)
+      omniauth-oauth (~> 1.1)
+      rack
+
+GIT
+  remote: https://github.com/lynndylanhurley/devise_token_auth.git
+  revision: 798255ee7e3fee5cfa2fdc519fd90e281bd9b6f5
+  specs:
+    devise_token_auth (1.2.0)
+      bcrypt (~> 3.0)
+      devise (> 3.5.2, < 5)
+      rails (>= 4.2.0, < 7.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -72,10 +89,6 @@ GEM
       railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
-    devise_token_auth (1.2.0)
-      bcrypt (~> 3.0)
-      devise (> 3.5.2, < 5)
-      rails (>= 4.2.0, < 6.2)
     dotenv (2.7.6)
     dotenv-rails (2.7.6)
       dotenv (= 2.7.6)
@@ -140,9 +153,6 @@ GEM
     omniauth-rails_csrf_protection (1.0.1)
       actionpack (>= 4.2)
       omniauth (~> 2.0)
-    omniauth-twitter (1.4.0)
-      omniauth-oauth (~> 1.1)
-      rack
     orm_adapter (0.5.0)
     pry (0.14.1)
       coderay (~> 1.1)
@@ -225,14 +235,14 @@ DEPENDENCIES
   bootsnap (>= 1.4.2)
   byebug
   devise (~> 4.8, >= 4.8.1)
-  devise_token_auth (~> 1.2)
+  devise_token_auth!
   dotenv-rails
   listen (~> 3.2)
   mysql2 (>= 0.4.4)
   omniauth-facebook
   omniauth-google-oauth2
   omniauth-rails_csrf_protection
-  omniauth-twitter
+  omniauth-twitter!
   pry-rails
   puma (~> 4.1)
   rack-cors
