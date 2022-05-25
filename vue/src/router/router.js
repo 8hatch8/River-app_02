@@ -80,7 +80,7 @@ const routes = [
     beforeEnter: requireAuth,
   },
   {
-    path: "/omniauth/google_oauth2/callback",
+    path: "/omniauth/:provider/callback",
     name: "Callback",
     component: Chatroom,
     beforeEnter: callbackOmniAuth,

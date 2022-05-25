@@ -34,12 +34,8 @@
       <div class="error">{{ error }}</div>
       <form-button label="ログインする" />
     </form>
-    <p>
-      はじめての方は
-      <span class="underline" @click="showSignupForm">こちら</span>
-    </p>
-    <p>もしくは</p>
-    <p class="underline" @click="loginGoogleAuth">Googleでログイン</p>
+    <google-button @click.prevent="loginOmniAuth(googleLoginURL)" />
+    <p class="mt-30">新規登録は<span @click="showSignupForm" class="underline">こちら</span></p>
   </div>
 </template>
 
@@ -47,9 +43,10 @@
 import axios from "axios";
 import InputBox from "@/components/share/InputBox.vue";
 import FormButton from "@/components/share/Button.vue";
+import GoogleButton from "@/components/share/GoogleButton.vue";
 import { setItem, apiServer, appServer } from "@/mixin/auth";
 export default {
-  components: { InputBox, FormButton },
+  components: { InputBox, FormButton, GoogleButton },
   emits: ["show-signup-form", "redirect-to-chatroom"],
   data() {
     return {
@@ -71,8 +68,8 @@ export default {
     showSignupForm() {
       this.$emit("show-signup-form");
     },
-    loginGoogleAuth() {
-      location.href = this.googleLoginURL;
+    loginOmniAuth(URL) {
+      location.href = URL;
     },
     async login() {
       this.error = null;
@@ -102,7 +99,10 @@ export default {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
+.mt-30 {
+  margin-top: 30px;
+}
 .login-form {
   display: flex;
   flex-direction: column;
@@ -120,7 +120,12 @@ export default {
   width: 80%;
   max-width: 400px;
 }
+.error {
+  margin-top: 15px;
+  margin-bottom: -10px;
+}
 .Button {
+  width: 200px;
   margin: 30px 0;
 }
 </style>
