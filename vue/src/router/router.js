@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import Welcome from "@/views/Welcome";
 import Chatroom from "@/views/ChatRoom";
 import useValidate from "@/mixin/validate";
+import { setItem } from "../mixin/auth";
 
 const { error, validate } = useValidate();
 
@@ -46,6 +47,24 @@ const noRequireAuth = async (to, from, next) => {
   }
 };
 
+// OmniAuth
+const callbackOmniAuth = async (to, from, next) => {
+  const authHeaders = {
+    headers: {
+      "access-token": to.query.auth_token,
+      client: to.query.client_id,
+      uid: to.query.uid,
+    },
+    data: {
+      data: {
+        nickname: to.query.nickname,
+      },
+    },
+  };
+  setItem(authHeaders);
+  next("/");
+};
+
 // Routeの設定
 const routes = [
   {
@@ -59,6 +78,12 @@ const routes = [
     name: "Chatroom",
     component: Chatroom,
     beforeEnter: requireAuth,
+  },
+  {
+    path: "/omniauth/google_oauth2/callback",
+    name: "Callback",
+    component: Chatroom,
+    beforeEnter: callbackOmniAuth,
   },
 ];
 
