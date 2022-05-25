@@ -100,13 +100,14 @@
     </div>
     <!-- type:リスト -->
     <div v-if="item.format === 'list'" class="item item-list">
-      <div v-if="!isEditing">{{ "● " + item.text }}</div>
+      <fa-icon icon="circle" class="circle fa-sm" />
+      <div v-if="!isEditing" class="text">{{ item.text }}</div>
       <!-- 編集時 -->
-      <div v-else>
+      <div v-else class="text">
         <input
           v-model="text"
           ref="editBox"
-          class="input-box text"
+          class="input-box"
           onfocus="this.select()"
           @keypress.enter="onKeypressEnter"
           @blur="onEditEnd(item)"
@@ -341,7 +342,15 @@ $river-green: #51b392;
   .item-list {
     width: 100%;
     font-size: 1rem;
+    display: flex;
     margin-left: 22px;
+    .circle {
+      padding: 4px 2px 0 1px;
+    }
+    .text {
+      width: 100%;
+      padding-left: 7px;
+    }
   }
   .item-check {
     font-size: 1rem;
