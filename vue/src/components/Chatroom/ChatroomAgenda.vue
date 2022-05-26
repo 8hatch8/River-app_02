@@ -12,7 +12,7 @@
         <input
           v-model="name"
           ref="editBox"
-          class="input-box"
+          class="input-box agenda-name"
           onfocus="this.select()"
           @keypress.enter="onKeypressEnter"
           @blur="onEditEnd(agenda)"
@@ -124,8 +124,11 @@ export default {
     border-radius: 10px;
   }
   .input-box {
-    font-size: 1.2rem;
     padding-left: 5px;
+    border: none;
+    outline: none;
+    background-color: aliceblue;
+    border-radius: 10px;
   }
   .agenda-icon {
     padding-left: 5px;

@@ -51,7 +51,7 @@
                 <input
                   v-model="selectedAgenda.content"
                   ref="contentEditBox"
-                  class="content-edit"
+                  class="agenda-content input-box"
                   onfocus="this.select()"
                   @keypress.enter="onBlurContent"
                   @blur="onBlurContent"
@@ -539,9 +539,11 @@ $river-green: #51b392;
         .agenda-content {
           padding: 10px;
         }
-        .content-edit {
+        .input-box {
           width: 100%;
-          padding: 10px;
+          border: none;
+          outline: none;
+          background-color: #e4fcff;
         }
       }
       // アイテムリスト
