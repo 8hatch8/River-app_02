@@ -68,6 +68,7 @@ export default {
     align-items: center;
     .room-name {
       font-size: 1.4rem;
+      padding-top: 6px;
       padding-left: 10px;
     }
   }

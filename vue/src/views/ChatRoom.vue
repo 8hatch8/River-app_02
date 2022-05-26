@@ -497,13 +497,17 @@ export default {
 <style scoped lang="scss">
 $river-green: #51b392;
 .navbar {
+  z-index: 100;
+  position: absolute;
+  width: 100%;
   height: 60px;
-  background-color: #999;
+  box-shadow: 0 4px 3px rgba(0, 0, 0, 0.3);
 }
 
 .main {
   display: flex;
-  height: calc(100vh - 60px);
+  height: 100vh;
+  padding-top: 60px;
 
   .left-menu {
     width: 350px;
