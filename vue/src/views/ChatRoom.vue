@@ -51,7 +51,7 @@
                 <input
                   v-model="selectedAgenda.content"
                   ref="contentEditBox"
-                  class="content-edit"
+                  class="agenda-content input-box"
                   onfocus="this.select()"
                   @keypress.enter="onBlurContent"
                   @blur="onBlurContent"
@@ -90,16 +90,7 @@
             handle=".draggable-handle"
             @change="onDragItem"
           >
-            <template
-              #item="{ element }"
-              class="item"
-              :class="{
-                'item-text': element.format === 'text',
-                'item-h1': element.format === 'heading-1',
-                'item-h2': element.format === 'heading-2',
-                'item-h3': element.format === 'heading-3',
-              }"
-            >
+            <template #item="{ element }" class="item">
               <chatroom-item
                 :item="element"
                 @add-next="onAddNextItem"
@@ -196,10 +187,10 @@ export default {
       this.putAgenda(this.selectedAgenda);
     },
     // 右ビュー：Item
-    onAddNextItem(targetItem) {
+    onAddNextItem(targetItem, format) {
       const item = {
         text: "新規アイテム",
-        format: "text",
+        format: format,
         position: targetItem.position + 1,
         agenda_id: this.selectedAgenda.id,
       };
@@ -504,14 +495,19 @@ export default {
 </script>
 
 <style scoped lang="scss">
+$river-green: #51b392;
 .navbar {
+  z-index: 100;
+  position: absolute;
+  width: 100%;
   height: 60px;
-  background-color: #999;
+  box-shadow: 0 4px 3px rgba(0, 0, 0, 0.3);
 }
 
 .main {
   display: flex;
-  height: calc(100vh - 60px);
+  height: 100vh;
+  padding-top: 60px;
 
   .left-menu {
     width: 350px;
@@ -521,6 +517,7 @@ export default {
     .agenda-add-button {
       margin-left: 8px;
       padding: 5px 10px;
+      box-shadow: 0 3px 4px rgba(0, 0, 0, 0.3);
       .icon {
         margin-right: 5px;
       }
@@ -536,33 +533,27 @@ export default {
     .right-top {
       height: calc(100% - 60px);
       .agenda {
-        padding: 10px;
-        border: dotted 2px #999;
+        padding: 10px 20px;
+        margin-left: -15px;
+        margin-right: -30px;
+        border-left: 8px solid $river-green;
+        background: #e4fcff;
+        box-shadow: 0 3px 4px rgba(0, 0, 0, 0.3);
         .agenda-title {
         }
         .agenda-content {
           padding: 10px;
         }
-        .content-edit {
+        .input-box {
           width: 100%;
-          padding: 10px;
+          border: none;
+          outline: none;
+          background-color: #e4fcff;
         }
       }
-      // アイテムのインデント
+      // アイテムリスト
       .items {
         padding-bottom: 200px;
-        .item-h1 {
-          margin-left: 0px;
-        }
-        .item-h2 {
-          margin-left: 20px;
-        }
-        .item-h3 {
-          margin-left: 40px;
-        }
-        .item-text {
-          margin-left: 40px;
-        }
       }
     }
     .chat-form {
