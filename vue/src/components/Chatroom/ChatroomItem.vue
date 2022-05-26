@@ -118,7 +118,7 @@
         <fa-icon icon="grip-lines" />
       </div>
       <!-- アイテム追加 -->
-      <div class="button-icon" @click.stop="toggleMenuAddNext = !toggleMenuAddNext">
+      <div class="button-icon" @click.stop="onClickAddIcon">
         <fa-icon icon="plus-circle" />
         <!-- ドロップダウンメニュー -->
         <div v-if="toggleMenuAddNext" class="dropdown-menu">
@@ -141,7 +141,7 @@
       </div>
       <!-- フォーマット変更 -->
       <div class="button-icon">
-        <fa-icon icon="ellipsis-h" @click="toggleMenuFormat = !toggleMenuFormat" />
+        <fa-icon icon="ellipsis-h" @click.stop="onClickFormatIcon" />
         <!-- ドロップダウンメニュー -->
         <div v-if="toggleMenuFormat" class="dropdown-menu">
           <a class="dropdown-item" @click="onClickFormat(item, 'heading-1')">見出し1</a>
@@ -186,6 +186,10 @@ export default {
     onClickDelete(item) {
       this.$emit("delete", item);
     },
+    onClickAddIcon() {
+      this.toggleMenuAddNext = !this.toggleMenuAddNext;
+      this.toggleMenuFormat = false;
+    },
     onClickEdit() {
       this.isEditing = true;
     },
@@ -199,6 +203,10 @@ export default {
     },
     onClickAddNext(item, format) {
       this.$emit("add-next", item, format);
+    },
+    onClickFormatIcon() {
+      this.toggleMenuFormat = !this.toggleMenuFormat;
+      this.toggleMenuAddNext = false;
     },
     onClickFormat(item, format = "text") {
       if (item.format === format) return;
