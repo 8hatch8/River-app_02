@@ -16,16 +16,13 @@
         <div class="head">{{ item.user_name }}</div>
         <!-- テキスト -->
         <div v-if="!isEditing" class="text">{{ item.text }}</div>
-
         <!-- 編集時 -->
         <div v-else>
-          <input
-            v-model="text"
-            ref="editBox"
-            class="input-box text"
-            onfocus="this.select()"
-            @keypress.enter="onKeypressEnter"
-            @blur="onEditEnd(item)"
+          <text-area
+            class="text-area text"
+            :value="item.text"
+            :autofocus="true"
+            @blur="onEditEnd"
           />
         </div>
       </div>
@@ -43,13 +40,11 @@
         <div v-if="!isEditing" class="text">{{ item.text }}</div>
         <!-- 編集時 -->
         <div v-else>
-          <input
-            v-model="text"
-            ref="editBox"
-            class="input-box text"
-            onfocus="this.select()"
-            @keypress.enter="onKeypressEnter"
-            @blur="onEditEnd(item)"
+          <text-area
+            class="text-area text"
+            :value="item.text"
+            :autofocus="true"
+            @blur="onEditEnd"
           />
         </div>
       </div>
@@ -60,42 +55,21 @@
       <div v-if="!isEditing">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
-        <input
-          v-model="text"
-          ref="editBox"
-          class="input-box text"
-          onfocus="this.select()"
-          @keypress.enter="onKeypressEnter"
-          @blur="onEditEnd(item)"
-        />
+        <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
       </div>
     </div>
     <div v-if="item.format === 'heading-2'" class="item item-heading heading-2">
       <div v-if="!isEditing">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
-        <input
-          v-model="text"
-          ref="editBox"
-          class="input-box text"
-          onfocus="this.select()"
-          @keypress.enter="onKeypressEnter"
-          @blur="onEditEnd(item)"
-        />
+        <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
       </div>
     </div>
     <div v-if="item.format === 'heading-3'" class="item item-heading heading-3">
       <div v-if="!isEditing">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
-        <input
-          v-model="text"
-          ref="editBox"
-          class="input-box text"
-          onfocus="this.select()"
-          @keypress.enter="onKeypressEnter"
-          @blur="onEditEnd(item)"
-        />
+        <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
       </div>
     </div>
     <!-- type:リスト -->
@@ -103,47 +77,38 @@
       <fa-icon icon="circle" class="circle fa-sm" />
       <div v-if="!isEditing" class="text">{{ item.text }}</div>
       <!-- 編集時 -->
-      <div v-else class="text">
-        <input
-          v-model="text"
-          ref="editBox"
-          class="input-box"
-          onfocus="this.select()"
-          @keypress.enter="onKeypressEnter"
-          @blur="onEditEnd(item)"
-        />
-      </div>
+      <text-area
+        v-else
+        class="text-area text"
+        :value="item.text"
+        :autofocus="true"
+        @blur="onEditEnd"
+      />
     </div>
     <!-- type:チェックボックス -->
     <div v-if="item.format === 'check-false'" class="item item-check false">
       <fa-icon icon="minus-square" class="check-box" @click="onClickFormat(item, 'check-true')" />
       <div v-if="!isEditing" class="text">{{ item.text }}</div>
       <!-- 編集時 -->
-      <div v-else class="text">
-        <input
-          v-model="text"
-          ref="editBox"
-          class="input-box"
-          onfocus="this.select()"
-          @keypress.enter="onKeypressEnter"
-          @blur="onEditEnd(item)"
-        />
-      </div>
+      <text-area
+        v-else
+        class="text-area text"
+        :value="item.text"
+        :autofocus="true"
+        @blur="onEditEnd"
+      />
     </div>
     <div v-if="item.format === 'check-true'" class="item item-check true">
       <fa-icon icon="check-square" class="check-box" @click="onClickFormat(item, 'check-false')" />
       <div v-if="!isEditing" class="text">{{ item.text }}</div>
       <!-- 編集時 -->
-      <div v-else>
-        <input
-          v-model="text"
-          ref="editBox"
-          class="input-box text"
-          onfocus="this.select()"
-          @keypress.enter="onKeypressEnter"
-          @blur="onEditEnd(item)"
-        />
-      </div>
+      <text-area
+        v-else
+        class="text-area text"
+        :value="item.text"
+        :autofocus="true"
+        @blur="onEditEnd"
+      />
     </div>
 
     <!-- 操作ボタン -->
@@ -193,13 +158,14 @@
 </template>
 
 <script>
+import textArea from "@/components/share/TextArea.vue";
 export default {
+  components: { textArea },
   name: "ChatroomItem",
   props: ["item"],
   emits: ["delete", "edit-text", "add-next", "change-format"],
   data() {
     return {
-      text: this.item.text,
       mouseOver: false,
       isEditing: false,
       toggleMenuFormat: false,
@@ -222,20 +188,14 @@ export default {
     },
     onClickEdit() {
       this.isEditing = true;
-      this.$nextTick(() => {
-        this.$refs.editBox.focus();
-      });
     },
-    onKeypressEnter() {
-      this.$refs.editBox.blur();
-    },
-    onEditEnd(item) {
+    onEditEnd(text) {
       // 入力フォームを非表示に
       this.isEditing = false;
       // textが空白なら元に戻す
-      if (this.text.length === 0) this.text = this.item.text;
-      if (this.text === this.item.text) return;
-      this.$emit("edit-text", item, this.text);
+      if (text.length === 0) return;
+      if (text === this.item.text) return;
+      this.$emit("edit-text", this.item, text);
     },
     onClickAddNext(item, format) {
       this.$emit("add-next", item, format);
@@ -260,16 +220,16 @@ $river-green: #51b392;
   &.mouseover {
     background-color: rgba(255, 255, 255, 0.5);
   }
-  .input-box {
+  .text-area {
     width: 100%;
-    color: rgb(11, 73, 136);
     border: none;
-    border-bottom: 1px solid #555;
     outline: none;
+    color: grey;
     background-color: aliceblue;
   }
   .item {
     width: 100%;
+    white-space: pre-wrap;
   }
   .item-text {
     display: flex;
@@ -358,6 +318,9 @@ $river-green: #51b392;
     margin-left: 20px;
     &.false {
       color: $river-green;
+      .text {
+        width: 100%;
+      }
     }
     &.true {
       color: #888;
