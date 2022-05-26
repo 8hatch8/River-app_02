@@ -513,6 +513,7 @@ $river-green: #51b392;
     .agenda-add-button {
       margin-left: 8px;
       padding: 5px 10px;
+      box-shadow: 0 3px 4px rgba(0, 0, 0, 0.3);
       .icon {
         margin-right: 5px;
       }
