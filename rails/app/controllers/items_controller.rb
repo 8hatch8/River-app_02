@@ -3,7 +3,7 @@ class ItemsController < ApplicationController
 
   def create
     item = Item.new(item_params)
-    item.position = Item.where(agenda_id: item.agenda_id).length + 1 if item.position.blank?
+    item.position = Agenda.find(params[:agenda_id]).items.length + 1 if item.position.blank?
 
     if item.save
       render json: { message: '投稿しました' }, status: 200
