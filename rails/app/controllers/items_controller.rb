@@ -42,7 +42,7 @@ class ItemsController < ApplicationController
       type = 'move_item'
       broadcast_item(item, type)
     else
-      render json: { message: '移動できませんでした', errors: agenda.errors.messages }, status: 400
+      render json: { message: '移動できませんでした', errors: item.errors.messages }, status: 400
     end
   end
 
