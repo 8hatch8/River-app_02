@@ -6,6 +6,10 @@
     @mouseleave="onMouseLeave"
     @dblclick="onClickEdit"
   >
+    <!-- セレクトボックス -->
+    <div v-if="mouseOver && !isSelected" class="select-box" @click="onClickSelectBox(item)">□</div>
+    <div v-if="isSelected" class="select-box selected" @click="onClickSelectedBox(item)">☑︎</div>
+
     <!-- type:テキスト -->
     <div v-if="item.format === 'text'" class="item item-text">
       <!-- アイコン -->
@@ -162,8 +166,8 @@ import textArea from "@/components/share/TextArea.vue";
 export default {
   components: { textArea },
   name: "ChatroomItem",
-  props: ["item"],
-  emits: ["delete", "edit-text", "add-next", "change-format"],
+  props: ["item", "selected-items"],
+  emits: ["delete", "edit-text", "add-next", "change-format", "select", "unselect"],
   data() {
     return {
       mouseOver: false,
@@ -171,6 +175,13 @@ export default {
       toggleMenuFormat: false,
       toggleMenuAddNext: false,
     };
+  },
+  computed: {
+    isSelected() {
+      return this.selectedItems.find((item) => {
+        return item.id === this.item.id;
+      });
+    },
   },
   methods: {
     // マウスオーバー
@@ -183,6 +194,12 @@ export default {
       this.toggleMenuAddNext = false;
     },
     // 操作メニュー
+    onClickSelectBox(item) {
+      this.$emit("select", item);
+    },
+    onClickSelectedBox(item) {
+      this.$emit("unselect", item);
+    },
     onClickDelete(item) {
       this.$emit("delete", item);
     },

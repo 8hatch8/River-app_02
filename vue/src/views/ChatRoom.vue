@@ -38,7 +38,6 @@
 
       <!-- Right View -->
       <div class="right-view">
-        <!-- アジェンダ 【TODO】コンポーネントとして切り出す-->
         <div class="right-top">
           <!-- アジェンダ選択時 -->
           <template v-if="selectedAgenda.id > 0">
@@ -93,10 +92,13 @@
             <template #item="{ element }" class="item">
               <chatroom-item
                 :item="element"
+                :selected-items="selectedItems"
                 @add-next="onAddNextItem"
                 @edit-text="onEditItemText"
                 @delete="onDeleteItem"
                 @change-format="onChangeFormat"
+                @select="onSelectItem"
+                @unselect="onUnselectItem"
               />
             </template>
           </vue-draggable>
@@ -129,6 +131,7 @@ export default {
       user: { id: 1, nickname: "テストユーザー" },
       room: {},
       selectedAgenda: {},
+      selectedItems: [],
       mouseOverContent: false,
       isEditingContent: false,
     };
@@ -187,6 +190,13 @@ export default {
       this.putAgenda(this.selectedAgenda);
     },
     // 右ビュー：Item
+    onSelectItem(item) {
+      this.selectedItems.push(item);
+    },
+    onUnselectItem(item) {
+      const index = this.selectedItems.indexOf(item);
+      this.selectedItems.splice(index, 1);
+    },
     onAddNextItem(targetItem, format) {
       const item = {
         text: "新規アイテム",
