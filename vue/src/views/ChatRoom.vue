@@ -143,6 +143,19 @@ export default {
     items() {
       return this.selectedAgenda.items;
     },
+    postPosition() {
+      if (this.selectedItems.length < 1) return null;
+      const nextHeading = this.items.find((item) => {
+        return (
+          item.position > this.selectedItems[0].position &&
+          (item.format === "heading-1" ||
+            item.format === "heading-2" ||
+            item.format === "heading-3")
+        );
+      });
+      if (!nextHeading) return null;
+      return nextHeading.position;
+    },
   },
   methods: {
     // 左メニュー:Agenda
@@ -194,9 +207,10 @@ export default {
       this.selectedItems = [];
       this.selectedItems.push(item);
     },
-    onUnselectItem(item) {
-      const index = this.selectedItems.indexOf(item);
-      this.selectedItems.splice(index, 1);
+    onUnselectItem() {
+      // const index = this.selectedItems.indexOf(item);
+      // this.selectedItems.splice(index, 1);
+      this.selectedItems = [];
     },
     onAddNextItem(targetItem, format) {
       const item = {
@@ -228,12 +242,15 @@ export default {
       item.position = arg.moved.newIndex + 1;
       this.dragItem(item);
     },
+    resetSelectedItems() {
+      this.selectedItems = [];
+    },
     // 右ビュー：ChatForm
     onPost(text) {
       const item = {
         text: text,
         format: "text",
-        position: null,
+        position: this.postPosition,
         agenda_id: this.selectedAgenda.id,
       };
       this.postItem(item);
@@ -498,8 +515,11 @@ export default {
     this.disconnectCable();
   },
   watch: {
-    "room.id"() {
+    room() {
       this.connectCable();
+    },
+    "selectedAgenda.id"() {
+      this.resetSelectedItems();
     },
   },
 };
