@@ -1,14 +1,20 @@
 <template>
   <div
     class="item-wrapper"
-    :class="{ mouseover: mouseOver && !isEditing }"
+    :class="{ mouseover: mouseOver && !isEditing, selected: isSelected }"
     @mouseover="onMouseOver"
     @mouseleave="onMouseLeave"
     @dblclick="onClickEdit"
   >
     <!-- セレクトボックス -->
-    <div v-if="mouseOver && !isSelected" class="select-box" @click="onClickSelectBox(item)">□</div>
-    <div v-if="isSelected" class="select-box selected" @click="onClickSelectedBox(item)">☑︎</div>
+    <div
+      v-if="mouseOver && this.heading && !isSelected"
+      class="select-box"
+      @click="onClickSelectBox(item)"
+    ></div>
+    <div v-if="isSelected" class="select-box selected" @click="onClickSelectedBox(item)">
+      <fa-icon icon="check" class="icon" />
+    </div>
 
     <!-- type:テキスト -->
     <div v-if="item.format === 'text'" class="item item-text">
@@ -182,6 +188,13 @@ export default {
         return item.id === this.item.id;
       });
     },
+    heading() {
+      return (
+        this.item.format === "heading-1" ||
+        this.item.format === "heading-2" ||
+        this.item.format === "heading-3"
+      );
+    },
   },
   methods: {
     // マウスオーバー
@@ -245,12 +258,33 @@ $river-green: #51b392;
   &.mouseover {
     background-color: rgba(255, 255, 255, 0.5);
   }
+  &.selected {
+    border-radius: 10px;
+    background-color: rgb(255, 254, 222);
+  }
   .text-area {
     width: 100%;
     border: none;
     outline: none;
     color: grey;
     background-color: aliceblue;
+  }
+  .select-box {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    border: 1px solid #999;
+    background-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    top: 2px;
+    left: 2px;
+    &.selected {
+      padding-left: 2px;
+      .icon {
+        position: absolute;
+        top: 1px;
+      }
+    }
   }
   .item {
     width: 100%;

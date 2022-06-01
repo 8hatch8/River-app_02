@@ -191,6 +191,7 @@ export default {
     },
     // 右ビュー：Item
     onSelectItem(item) {
+      this.selectedItems = [];
       this.selectedItems.push(item);
     },
     onUnselectItem(item) {
