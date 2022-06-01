@@ -233,6 +233,10 @@ export default {
       const editedItem = { ...item };
       editedItem.format = format;
       this.putItem(editedItem);
+      // 選択されていた場合、選択解除
+      if (this.selectedItems[0] === item) {
+        this.resetSelectedItems();
+      }
     },
     onDragItem(arg) {
       if (!arg.moved) return;
