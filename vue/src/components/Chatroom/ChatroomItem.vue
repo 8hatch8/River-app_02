@@ -259,8 +259,7 @@ $river-green: #51b392;
     background-color: rgba(255, 255, 255, 0.5);
   }
   &.selected {
-    border-radius: 10px;
-    background-color: rgb(255, 254, 222);
+    color: $river-green;
   }
   .text-area {
     width: 100%;
@@ -340,13 +339,12 @@ $river-green: #51b392;
   .item-heading {
     font-weight: bold;
     &.heading-1 {
-      color: $river-green;
       font-size: 2.5rem;
       margin-top: 5px;
-      border-bottom: 1px solid $river-green;
+      padding-left: 10px;
+      border-bottom: 2px solid;
     }
     &.heading-2 {
-      color: $river-green;
       font-size: 2rem;
       margin-left: 15px;
     }
@@ -364,7 +362,8 @@ $river-green: #51b392;
     display: flex;
     margin-left: 22px;
     .circle {
-      padding: 4px 2px 0 1px;
+      color: grey;
+      padding: 5px 2px 0 1px;
     }
     .text {
       width: 100%;
@@ -376,7 +375,6 @@ $river-green: #51b392;
     display: flex;
     margin-left: 20px;
     &.false {
-      color: $river-green;
       .text {
         width: 100%;
       }
