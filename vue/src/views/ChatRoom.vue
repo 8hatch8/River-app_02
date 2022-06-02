@@ -149,7 +149,7 @@ export default {
       return this.selectedAgenda.items;
     },
     postPosition() {
-      if (this.selectedItem.id) return null;
+      if (!this.selectedItem.id) return null;
       const nextHeading = this.items.find((item) => {
         return (
           item.position > this.selectedItem.position &&
