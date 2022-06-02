@@ -13,8 +13,8 @@
     </div>
     <!-- 選択中 -->
     <div v-if="isSelected && !isEditing" class="selected-checkmark tooltip">
-      <fa-icon icon="check" /><span class="balloon-right">{{
-        "選択した見出し\nに投稿します"
+      <fa-icon icon="check" /><span class="balloon balloon-right">{{
+        "選択した見出しに\n投稿します"
       }}</span>
     </div>
 
@@ -140,8 +140,8 @@
     <!-- 操作ボタン -->
     <div class="buttons" v-if="mouseOver && !isEditing">
       <!-- アイテム追加 -->
-      <div class="button-icon" @click.stop="onClickAddIcon">
-        <fa-icon icon="plus-circle" />
+      <div class="button-icon tooltip" @click.stop="onClickAddIcon">
+        <fa-icon icon="plus-circle" /><span class="balloon balloon-top">下に追加</span>
         <!-- ドロップダウンメニュー -->
         <div v-if="toggleMenuAddNext" class="dropdown-menu">
           <a class="dropdown-item" @click="onClickAddNext(item, 'heading-1')">見出し1</a>
@@ -154,16 +154,19 @@
         </div>
       </div>
       <!-- テキスト編集 -->
-      <div class="button-icon" @click.stop="onClickEdit">
-        <fa-icon icon="edit" />
+      <div class="button-icon tooltip" @click.stop="onClickEdit">
+        <fa-icon icon="edit" /><span class="balloon balloon-top">編集</span>
       </div>
       <!-- アイテム削除 -->
-      <div class="button-icon" @click.stop="onClickDelete(item)">
-        <fa-icon icon="trash" />
+      <div class="button-icon tooltip" @click.stop="onClickDelete(item)">
+        <fa-icon icon="trash" /><span class="balloon balloon-top">削除</span>
       </div>
       <!-- フォーマット変更 -->
-      <div class="button-icon">
-        <fa-icon icon="ellipsis-h" @click.stop="onClickFormatIcon" />
+      <div class="button-icon tooltip">
+        <fa-icon icon="ellipsis-h" @click.stop="onClickFormatIcon" /><span
+          class="balloon balloon-top"
+          >変更</span
+        >
         <!-- ドロップダウンメニュー -->
         <div v-if="toggleMenuFormat" class="dropdown-menu">
           <a class="dropdown-item" @click="onClickFormat(item, 'heading-1')">見出し1</a>
