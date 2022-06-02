@@ -95,7 +95,7 @@
             <template #item="{ element }" class="item">
               <chatroom-item
                 :item="element"
-                :selected-items="selectedItems"
+                :selected-item="selectedItem"
                 :is-dragging="isDragging"
                 @add-next="onAddNextItem"
                 @edit-text="onEditItemText"
@@ -131,11 +131,11 @@ export default {
   components: { ChatroomNavbar, ChatroomAgenda, ChatroomItem, ChatForm, VueDraggable },
   data() {
     return {
-      roomChannel: null,
+      roomChannel: {},
       user: { id: 1, nickname: "テストユーザー" },
       room: {},
       selectedAgenda: {},
-      selectedItems: [],
+      selectedItem: {},
       mouseOverContent: false,
       isEditingContent: false,
       isDragging: false,
@@ -149,10 +149,10 @@ export default {
       return this.selectedAgenda.items;
     },
     postPosition() {
-      if (this.selectedItems.length < 1) return null;
+      if (this.selectedItem.id) return null;
       const nextHeading = this.items.find((item) => {
         return (
-          item.position > this.selectedItems[0].position &&
+          item.position > this.selectedItem.position &&
           (item.format === "heading-1" ||
             item.format === "heading-2" ||
             item.format === "heading-3")
@@ -209,13 +209,10 @@ export default {
     },
     // 右ビュー：Item
     onSelectItem(item) {
-      this.selectedItems = [];
-      this.selectedItems.push(item);
+      this.selectedItem = item;
     },
     onUnselectItem() {
-      // const index = this.selectedItems.indexOf(item);
-      // this.selectedItems.splice(index, 1);
-      this.selectedItems = [];
+      this.selectedItem = {};
     },
     onAddNextItem(targetItem, format) {
       const item = {
@@ -239,8 +236,8 @@ export default {
       editedItem.format = format;
       this.putItem(editedItem);
       // 選択されていた場合、選択解除
-      if (this.selectedItems[0] === item) {
-        this.resetSelectedItems();
+      if (this.selectedItem === item) {
+        this.selectedItem = {};
       }
     },
     onDragItem(arg) {
@@ -250,9 +247,6 @@ export default {
       });
       item.position = arg.moved.newIndex + 1;
       this.dragItem(item);
-    },
-    resetSelectedItems() {
-      this.selectedItems = [];
     },
     // 右ビュー：ChatForm
     onPost(text, format) {
@@ -526,9 +520,6 @@ export default {
   watch: {
     room() {
       this.connectCable();
-    },
-    "selectedAgenda.id"() {
-      this.resetSelectedItems();
     },
   },
 };

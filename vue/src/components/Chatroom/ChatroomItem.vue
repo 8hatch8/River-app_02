@@ -4,7 +4,6 @@
     :class="{ mouseover: mouseOver && !isEditing, selected: isSelected }"
     @mouseover="onMouseOver"
     @mouseleave="onMouseLeave"
-    @dblclick="onClickEdit"
     @click="if (isHeading && !isEditing) onClickItem(item);"
   >
     <!-- ドラッグハンドル -->
@@ -27,7 +26,7 @@
       <div class="body">
         <div class="head">{{ item.user_name }}</div>
         <!-- テキスト -->
-        <div v-if="!isEditing" class="text">{{ item.text }}</div>
+        <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
         <!-- 編集時 -->
         <div v-else>
           <text-area
@@ -49,7 +48,7 @@
       <div class="body">
         <div class="head">{{ item.user_name }}</div>
         <!-- テキスト -->
-        <div v-if="!isEditing" class="text">{{ item.text }}</div>
+        <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
         <!-- 編集時 -->
         <div v-else>
           <text-area
@@ -68,7 +67,7 @@
       class="item item-heading heading-1"
       :class="{ selected: isSelected }"
     >
-      <div v-if="!isEditing">{{ item.text }}</div>
+      <div v-if="!isEditing" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
         <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
@@ -80,7 +79,7 @@
       class="item item-heading heading-2"
       :class="{ selected: isSelected }"
     >
-      <div v-if="!isEditing">{{ item.text }}</div>
+      <div v-if="!isEditing" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
         <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
@@ -92,7 +91,7 @@
       class="item item-heading heading-3"
       :class="{ selected: isSelected }"
     >
-      <div v-if="!isEditing">{{ item.text }}</div>
+      <div v-if="!isEditing" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
         <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
@@ -101,7 +100,7 @@
     <!-- type:リスト -->
     <div v-if="item.format === 'list'" class="item item-list">
       <fa-icon icon="circle" class="circle fa-sm" />
-      <div v-if="!isEditing" class="text">{{ item.text }}</div>
+      <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <text-area
         v-else
@@ -114,7 +113,7 @@
     <!-- type:チェックボックス -->
     <div v-if="item.format === 'check-false'" class="item item-check false">
       <fa-icon icon="minus-square" class="check-box" @click="onClickFormat(item, 'check-true')" />
-      <div v-if="!isEditing" class="text">{{ item.text }}</div>
+      <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <text-area
         v-else
@@ -126,7 +125,7 @@
     </div>
     <div v-if="item.format === 'check-true'" class="item item-check true">
       <fa-icon icon="check-square" class="check-box" @click="onClickFormat(item, 'check-false')" />
-      <div v-if="!isEditing" class="text">{{ item.text }}</div>
+      <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <text-area
         v-else
@@ -144,13 +143,15 @@
         <fa-icon icon="plus-circle" /><span class="balloon balloon-top">下に追加</span>
         <!-- ドロップダウンメニュー -->
         <div v-if="toggleMenuAddNext" class="dropdown-menu">
-          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-1')">見出し1</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-2')">見出し2</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-3')">見出し3</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'text')">テキスト</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'comment')">コメント</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'list')">リスト</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'check-false')">チェックリスト</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'heading-1')">見出し1</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'heading-2')">見出し2</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'heading-3')">見出し3</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'text')">テキスト</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'comment')">コメント</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'list')">リスト</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'check-false')"
+            >チェックリスト</a
+          >
         </div>
       </div>
       <!-- テキスト編集 -->
@@ -162,20 +163,19 @@
         <fa-icon icon="trash" /><span class="balloon balloon-top">削除</span>
       </div>
       <!-- フォーマット変更 -->
-      <div class="button-icon tooltip">
-        <fa-icon icon="ellipsis-h" @click.stop="onClickFormatIcon" /><span
-          class="balloon balloon-top"
-          >変更</span
-        >
+      <div class="button-icon tooltip" @click.stop="onClickFormatIcon">
+        <fa-icon icon="ellipsis-h" /><span class="balloon balloon-top">変更</span>
         <!-- ドロップダウンメニュー -->
         <div v-if="toggleMenuFormat" class="dropdown-menu">
-          <a class="dropdown-item" @click="onClickFormat(item, 'heading-1')">見出し1</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'heading-2')">見出し2</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'heading-3')">見出し3</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'text')">テキスト</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'comment')">コメント</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'list')">リスト</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'check-false')">チェックリスト</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'heading-1')">見出し1</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'heading-2')">見出し2</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'heading-3')">見出し3</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'text')">テキスト</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'comment')">コメント</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'list')">リスト</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'check-false')"
+            >チェックリスト</a
+          >
         </div>
       </div>
     </div>
@@ -187,7 +187,7 @@ import textArea from "@/components/share/TextArea.vue";
 export default {
   components: { textArea },
   name: "ChatroomItem",
-  props: ["item", "selected-items", "is-dragging"],
+  props: ["item", "selected-item", "is-dragging"],
   emits: ["delete", "edit-text", "add-next", "change-format", "select", "unselect"],
   data() {
     return {
@@ -195,13 +195,13 @@ export default {
       isEditing: false,
       toggleMenuFormat: false,
       toggleMenuAddNext: false,
+      timer: null,
+      clickCount: 0,
     };
   },
   computed: {
     isSelected() {
-      return this.selectedItems.find((item) => {
-        return item.id === this.item.id;
-      });
+      return this.selectedItem.id === this.item.id;
     },
     isHeading() {
       return (
@@ -228,11 +228,23 @@ export default {
     },
     // 操作メニュー
     onClickItem(item) {
-      if (this.isSelected) {
-        this.$emit("unselect", item);
-      } else {
-        this.$emit("select", item);
+      this.clickCount++;
+      if (this.clickCount !== 1) {
+        clearTimeout(this.timer);
+        this.clickCount = 0;
+        return;
       }
+      this.timer = setTimeout(() => {
+        if (this.isSelected) {
+          this.$emit("unselect", item);
+        } else {
+          this.$emit("select", item);
+        }
+        this.clickCount = 0;
+      }, 200);
+    },
+    onDblClickItem() {
+      this.onClickEdit();
     },
     onClickDelete(item) {
       this.$emit("delete", item);
