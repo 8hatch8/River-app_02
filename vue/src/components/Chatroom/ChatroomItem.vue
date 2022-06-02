@@ -5,15 +5,15 @@
     @mouseover="onMouseOver"
     @mouseleave="onMouseLeave"
     @dblclick="onClickEdit"
+    @click="if (isHeading && !isEditing) onClickItem(item);"
   >
-    <!-- セレクトボックス -->
-    <div
-      v-if="mouseOver && this.heading && !isSelected"
-      class="select-box"
-      @click="onClickSelectBox(item)"
-    ></div>
-    <div v-if="isSelected" class="select-box selected" @click="onClickSelectedBox(item)">
-      <fa-icon icon="check" class="icon" />
+    <!-- ドラッグハンドル -->
+    <div v-if="mouseOver && !isEditing && !isDragging" class="draggable-handle">
+      <fa-icon icon="grip-vertical" />
+    </div>
+    <!-- 選択中 -->
+    <div v-if="isSelected && !isEditing" class="selected-checkmark">
+      <fa-icon icon="check" />
     </div>
 
     <!-- type:テキスト -->
@@ -60,22 +60,36 @@
       </div>
     </div>
 
-    <!-- type:見出し -->
-    <div v-if="item.format === 'heading-1'" class="item item-heading heading-1">
+    <!-- type:見出し-1 -->
+    <div
+      v-if="item.format === 'heading-1'"
+      class="item item-heading heading-1"
+      :class="{ selected: isSelected }"
+    >
       <div v-if="!isEditing">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
         <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
       </div>
     </div>
-    <div v-if="item.format === 'heading-2'" class="item item-heading heading-2">
+    <!-- type:見出し-2 -->
+    <div
+      v-if="item.format === 'heading-2'"
+      class="item item-heading heading-2"
+      :class="{ selected: isSelected }"
+    >
       <div v-if="!isEditing">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
         <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
       </div>
     </div>
-    <div v-if="item.format === 'heading-3'" class="item item-heading heading-3">
+    <!-- type:見出し-3 -->
+    <div
+      v-if="item.format === 'heading-3'"
+      class="item item-heading heading-3"
+      :class="{ selected: isSelected }"
+    >
       <div v-if="!isEditing">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
@@ -123,10 +137,6 @@
 
     <!-- 操作ボタン -->
     <div class="buttons" v-if="mouseOver && !isEditing">
-      <!-- アイテム移動 -->
-      <div class="button-icon draggable-handle">
-        <fa-icon icon="grip-lines" />
-      </div>
       <!-- アイテム追加 -->
       <div class="button-icon" @click.stop="onClickAddIcon">
         <fa-icon icon="plus-circle" />
@@ -172,7 +182,7 @@ import textArea from "@/components/share/TextArea.vue";
 export default {
   components: { textArea },
   name: "ChatroomItem",
-  props: ["item", "selected-items"],
+  props: ["item", "selected-items", "is-dragging"],
   emits: ["delete", "edit-text", "add-next", "change-format", "select", "unselect"],
   data() {
     return {
@@ -188,12 +198,17 @@ export default {
         return item.id === this.item.id;
       });
     },
-    heading() {
+    isHeading() {
       return (
         this.item.format === "heading-1" ||
         this.item.format === "heading-2" ||
         this.item.format === "heading-3"
       );
+    },
+    // ドラッグ中のカーソルを変更
+    cursorValue() {
+      if (this.isDragging) return "grabbing";
+      return "default";
     },
   },
   methods: {
@@ -207,11 +222,12 @@ export default {
       this.toggleMenuAddNext = false;
     },
     // 操作メニュー
-    onClickSelectBox(item) {
-      this.$emit("select", item);
-    },
-    onClickSelectedBox(item) {
-      this.$emit("unselect", item);
+    onClickItem(item) {
+      if (this.isSelected) {
+        this.$emit("unselect", item);
+      } else {
+        this.$emit("select", item);
+      }
     },
     onClickDelete(item) {
       this.$emit("delete", item);
@@ -253,13 +269,11 @@ $river-green: #51b392;
   display: flex;
   align-items: center;
   margin: 3px 0;
-  padding: 8px;
+  padding: 8px 18px;
   position: relative;
+  cursor: v-bind(cursorValue);
   &.mouseover {
     background-color: rgba(255, 255, 255, 0.5);
-  }
-  &.selected {
-    color: $river-green;
   }
   .text-area {
     width: 100%;
@@ -268,22 +282,25 @@ $river-green: #51b392;
     color: grey;
     background-color: aliceblue;
   }
-  .select-box {
+  .draggable-handle {
+    z-index: 20;
+    color: #999;
     position: absolute;
-    width: 20px;
-    height: 20px;
-    border: 1px solid #999;
-    background-color: rgba(255, 255, 255, 0.7);
-    border-radius: 5px;
-    top: 2px;
-    left: 2px;
-    &.selected {
-      padding-left: 2px;
-      .icon {
-        position: absolute;
-        top: 1px;
-      }
+    left: 0;
+    padding: 5px 5px 5px 10px;
+    cursor: grab;
+    &:hover {
+      color: $river-green;
     }
+    &:active {
+      cursor: grabbing;
+    }
+  }
+  .selected-checkmark {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    color: $river-green;
   }
   .item {
     width: 100%;
@@ -338,6 +355,10 @@ $river-green: #51b392;
 
   .item-heading {
     font-weight: bold;
+    cursor: pointer;
+    &.selected {
+      color: $river-green;
+    }
     &.heading-1 {
       font-size: 2.5rem;
       margin-top: 5px;
@@ -353,7 +374,10 @@ $river-green: #51b392;
       font-size: 1.5rem;
       margin-left: 23px;
       padding-left: 8px;
-      border-left: 8px solid rgb(110, 110, 110);
+      border-left: 8px solid;
+      &.selected {
+        color: $river-green;
+      }
     }
   }
   .item-list {
@@ -410,12 +434,6 @@ $river-green: #51b392;
       cursor: pointer;
       &:hover {
         color: $river-green;
-      }
-      &.draggable-handle {
-        cursor: grab;
-      }
-      &:active {
-        cursor: grabbing;
       }
       .dropdown-menu {
         font-size: 0.8rem;

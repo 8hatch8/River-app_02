@@ -87,12 +87,16 @@
             :animation="300"
             :delay="5"
             handle=".draggable-handle"
+            :force-fallback="true"
             @change="onDragItem"
+            @start="isDragging = true"
+            @end="isDragging = false"
           >
             <template #item="{ element }" class="item">
               <chatroom-item
                 :item="element"
                 :selected-items="selectedItems"
+                :is-dragging="isDragging"
                 @add-next="onAddNextItem"
                 @edit-text="onEditItemText"
                 @delete="onDeleteItem"
@@ -105,7 +109,7 @@
         </div>
 
         <!-- 投稿フォーム -->
-        <div class="chat-form" v-if="this.selectedAgenda.id > 0">
+        <div class="chat-form" v-if="this.selectedAgenda.id > 0 && !isDragging">
           <chat-form @post="onPost" />
         </div>
       </div>
@@ -134,6 +138,7 @@ export default {
       selectedItems: [],
       mouseOverContent: false,
       isEditingContent: false,
+      isDragging: false,
     };
   },
   computed: {
@@ -562,7 +567,7 @@ $river-green: #51b392;
   .right-view {
     background-color: aliceblue;
     flex: 1;
-    padding: 20px 30px;
+    padding: 20px 20px;
     overflow: auto;
 
     .right-top {
