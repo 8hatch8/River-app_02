@@ -38,7 +38,6 @@
 
       <!-- Right View -->
       <div class="right-view">
-        <!-- アジェンダ 【TODO】コンポーネントとして切り出す-->
         <div class="right-top">
           <!-- アジェンダ選択時 -->
           <template v-if="selectedAgenda.id > 0">
@@ -88,22 +87,29 @@
             :animation="300"
             :delay="5"
             handle=".draggable-handle"
+            :force-fallback="true"
             @change="onDragItem"
+            @start="isDragging = true"
+            @end="isDragging = false"
           >
             <template #item="{ element }" class="item">
               <chatroom-item
                 :item="element"
+                :selected-item="selectedItem"
+                :is-dragging="isDragging"
                 @add-next="onAddNextItem"
                 @edit-text="onEditItemText"
                 @delete="onDeleteItem"
                 @change-format="onChangeFormat"
+                @select="onSelectItem"
+                @unselect="onUnselectItem"
               />
             </template>
           </vue-draggable>
         </div>
 
         <!-- 投稿フォーム -->
-        <div class="chat-form" v-if="this.selectedAgenda.id > 0">
+        <div class="chat-form" v-if="this.selectedAgenda.id > 0 && !isDragging">
           <chat-form @post="onPost" />
         </div>
       </div>
@@ -125,12 +131,14 @@ export default {
   components: { ChatroomNavbar, ChatroomAgenda, ChatroomItem, ChatForm, VueDraggable },
   data() {
     return {
-      roomChannel: null,
+      roomChannel: {},
       user: { id: 1, nickname: "テストユーザー" },
       room: {},
       selectedAgenda: {},
+      selectedItem: {},
       mouseOverContent: false,
       isEditingContent: false,
+      isDragging: false,
     };
   },
   computed: {
@@ -139,6 +147,19 @@ export default {
     },
     items() {
       return this.selectedAgenda.items;
+    },
+    postPosition() {
+      if (!this.selectedItem.id) return null;
+      const nextHeading = this.items.find((item) => {
+        return (
+          item.position > this.selectedItem.position &&
+          (item.format === "heading-1" ||
+            item.format === "heading-2" ||
+            item.format === "heading-3")
+        );
+      });
+      if (!nextHeading) return null;
+      return nextHeading.position;
     },
   },
   methods: {
@@ -187,6 +208,12 @@ export default {
       this.putAgenda(this.selectedAgenda);
     },
     // 右ビュー：Item
+    onSelectItem(item) {
+      this.selectedItem = item;
+    },
+    onUnselectItem() {
+      this.selectedItem = {};
+    },
     onAddNextItem(targetItem, format) {
       const item = {
         text: "新規アイテム",
@@ -208,6 +235,10 @@ export default {
       const editedItem = { ...item };
       editedItem.format = format;
       this.putItem(editedItem);
+      // 選択されていた場合、選択解除
+      if (this.selectedItem === item) {
+        this.selectedItem = {};
+      }
     },
     onDragItem(arg) {
       if (!arg.moved) return;
@@ -218,11 +249,11 @@ export default {
       this.dragItem(item);
     },
     // 右ビュー：ChatForm
-    onPost(text) {
+    onPost(text, format) {
       const item = {
         text: text,
-        format: "text",
-        position: null,
+        format: format,
+        position: this.postPosition,
         agenda_id: this.selectedAgenda.id,
       };
       this.postItem(item);
@@ -487,7 +518,7 @@ export default {
     this.disconnectCable();
   },
   watch: {
-    "room.id"() {
+    room() {
       this.connectCable();
     },
   },
@@ -527,7 +558,7 @@ $river-green: #51b392;
   .right-view {
     background-color: aliceblue;
     flex: 1;
-    padding: 20px 30px;
+    padding: 20px 20px;
     overflow: auto;
 
     .right-top {

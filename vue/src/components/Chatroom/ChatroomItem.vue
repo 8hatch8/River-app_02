@@ -1,11 +1,22 @@
 <template>
   <div
     class="item-wrapper"
-    :class="{ mouseover: mouseOver && !isEditing }"
+    :class="{ mouseover: mouseOver && !isEditing, selected: isSelected }"
     @mouseover="onMouseOver"
     @mouseleave="onMouseLeave"
-    @dblclick="onClickEdit"
+    @click="if (isHeading && !isEditing) onClickItem(item);"
   >
+    <!-- ドラッグハンドル -->
+    <div v-if="mouseOver && !isEditing && !isDragging" class="draggable-handle">
+      <fa-icon icon="grip-vertical" />
+    </div>
+    <!-- 選択中 -->
+    <div v-if="isSelected && !isEditing" class="selected-checkmark tooltip">
+      <fa-icon icon="check" /><span class="balloon balloon-right">{{
+        "選択した見出しに\n投稿します"
+      }}</span>
+    </div>
+
     <!-- type:テキスト -->
     <div v-if="item.format === 'text'" class="item item-text">
       <!-- アイコン -->
@@ -15,7 +26,7 @@
       <div class="body">
         <div class="head">{{ item.user_name }}</div>
         <!-- テキスト -->
-        <div v-if="!isEditing" class="text">{{ item.text }}</div>
+        <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
         <!-- 編集時 -->
         <div v-else>
           <text-area
@@ -37,7 +48,7 @@
       <div class="body">
         <div class="head">{{ item.user_name }}</div>
         <!-- テキスト -->
-        <div v-if="!isEditing" class="text">{{ item.text }}</div>
+        <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
         <!-- 編集時 -->
         <div v-else>
           <text-area
@@ -50,23 +61,37 @@
       </div>
     </div>
 
-    <!-- type:見出し -->
-    <div v-if="item.format === 'heading-1'" class="item item-heading heading-1">
-      <div v-if="!isEditing">{{ item.text }}</div>
+    <!-- type:見出し-1 -->
+    <div
+      v-if="item.format === 'heading-1'"
+      class="item item-heading heading-1"
+      :class="{ selected: isSelected }"
+    >
+      <div v-if="!isEditing" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
         <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
       </div>
     </div>
-    <div v-if="item.format === 'heading-2'" class="item item-heading heading-2">
-      <div v-if="!isEditing">{{ item.text }}</div>
+    <!-- type:見出し-2 -->
+    <div
+      v-if="item.format === 'heading-2'"
+      class="item item-heading heading-2"
+      :class="{ selected: isSelected }"
+    >
+      <div v-if="!isEditing" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
         <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
       </div>
     </div>
-    <div v-if="item.format === 'heading-3'" class="item item-heading heading-3">
-      <div v-if="!isEditing">{{ item.text }}</div>
+    <!-- type:見出し-3 -->
+    <div
+      v-if="item.format === 'heading-3'"
+      class="item item-heading heading-3"
+      :class="{ selected: isSelected }"
+    >
+      <div v-if="!isEditing" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <div v-else>
         <text-area class="text-area text" :value="item.text" :autofocus="true" @blur="onEditEnd" />
@@ -75,7 +100,7 @@
     <!-- type:リスト -->
     <div v-if="item.format === 'list'" class="item item-list">
       <fa-icon icon="circle" class="circle fa-sm" />
-      <div v-if="!isEditing" class="text">{{ item.text }}</div>
+      <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <text-area
         v-else
@@ -88,7 +113,7 @@
     <!-- type:チェックボックス -->
     <div v-if="item.format === 'check-false'" class="item item-check false">
       <fa-icon icon="minus-square" class="check-box" @click="onClickFormat(item, 'check-true')" />
-      <div v-if="!isEditing" class="text">{{ item.text }}</div>
+      <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <text-area
         v-else
@@ -100,7 +125,7 @@
     </div>
     <div v-if="item.format === 'check-true'" class="item item-check true">
       <fa-icon icon="check-square" class="check-box" @click="onClickFormat(item, 'check-false')" />
-      <div v-if="!isEditing" class="text">{{ item.text }}</div>
+      <div v-if="!isEditing" class="text" @dblclick="onDblClickItem">{{ item.text }}</div>
       <!-- 編集時 -->
       <text-area
         v-else
@@ -113,44 +138,44 @@
 
     <!-- 操作ボタン -->
     <div class="buttons" v-if="mouseOver && !isEditing">
-      <!-- アイテム移動 -->
-      <div class="button-icon draggable-handle">
-        <fa-icon icon="grip-lines" />
-      </div>
       <!-- アイテム追加 -->
-      <div class="button-icon" @click.stop="onClickAddIcon">
-        <fa-icon icon="plus-circle" />
+      <div class="button-icon tooltip" @click.stop="onClickAddIcon">
+        <fa-icon icon="plus-circle" /><span class="balloon balloon-top">下に追加</span>
         <!-- ドロップダウンメニュー -->
         <div v-if="toggleMenuAddNext" class="dropdown-menu">
-          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-1')">見出し1</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-2')">見出し2</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'heading-3')">見出し3</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'text')">テキスト</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'comment')">コメント</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'list')">リスト</a>
-          <a class="dropdown-item" @click="onClickAddNext(item, 'check-false')">チェックリスト</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'heading-1')">見出し1</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'heading-2')">見出し2</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'heading-3')">見出し3</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'text')">テキスト</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'comment')">コメント</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'list')">リスト</a>
+          <a class="dropdown-item" @click.stop="onClickAddNext(item, 'check-false')"
+            >チェックリスト</a
+          >
         </div>
       </div>
       <!-- テキスト編集 -->
-      <div class="button-icon" @click.stop="onClickEdit">
-        <fa-icon icon="edit" />
+      <div class="button-icon tooltip" @click.stop="onClickEdit">
+        <fa-icon icon="edit" /><span class="balloon balloon-top">編集</span>
       </div>
       <!-- アイテム削除 -->
-      <div class="button-icon" @click.stop="onClickDelete(item)">
-        <fa-icon icon="trash" />
+      <div class="button-icon tooltip" @click.stop="onClickDelete(item)">
+        <fa-icon icon="trash" /><span class="balloon balloon-top">削除</span>
       </div>
       <!-- フォーマット変更 -->
-      <div class="button-icon">
-        <fa-icon icon="ellipsis-h" @click.stop="onClickFormatIcon" />
+      <div class="button-icon tooltip" @click.stop="onClickFormatIcon">
+        <fa-icon icon="ellipsis-h" /><span class="balloon balloon-top">変更</span>
         <!-- ドロップダウンメニュー -->
         <div v-if="toggleMenuFormat" class="dropdown-menu">
-          <a class="dropdown-item" @click="onClickFormat(item, 'heading-1')">見出し1</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'heading-2')">見出し2</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'heading-3')">見出し3</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'text')">テキスト</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'comment')">コメント</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'list')">リスト</a>
-          <a class="dropdown-item" @click="onClickFormat(item, 'check-false')">チェックリスト</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'heading-1')">見出し1</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'heading-2')">見出し2</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'heading-3')">見出し3</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'text')">テキスト</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'comment')">コメント</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'list')">リスト</a>
+          <a class="dropdown-item" @click.stop="onClickFormat(item, 'check-false')"
+            >チェックリスト</a
+          >
         </div>
       </div>
     </div>
@@ -162,15 +187,34 @@ import textArea from "@/components/share/TextArea.vue";
 export default {
   components: { textArea },
   name: "ChatroomItem",
-  props: ["item"],
-  emits: ["delete", "edit-text", "add-next", "change-format"],
+  props: ["item", "selected-item", "is-dragging"],
+  emits: ["delete", "edit-text", "add-next", "change-format", "select", "unselect"],
   data() {
     return {
       mouseOver: false,
       isEditing: false,
       toggleMenuFormat: false,
       toggleMenuAddNext: false,
+      timer: null,
+      clickCount: 0,
     };
+  },
+  computed: {
+    isSelected() {
+      return this.selectedItem.id === this.item.id;
+    },
+    isHeading() {
+      return (
+        this.item.format === "heading-1" ||
+        this.item.format === "heading-2" ||
+        this.item.format === "heading-3"
+      );
+    },
+    // ドラッグ中のカーソルを変更
+    cursorValue() {
+      if (this.isDragging) return "grabbing";
+      return "default";
+    },
   },
   methods: {
     // マウスオーバー
@@ -183,6 +227,25 @@ export default {
       this.toggleMenuAddNext = false;
     },
     // 操作メニュー
+    onClickItem(item) {
+      this.clickCount++;
+      if (this.clickCount !== 1) {
+        clearTimeout(this.timer);
+        this.clickCount = 0;
+        return;
+      }
+      this.timer = setTimeout(() => {
+        if (this.isSelected) {
+          this.$emit("unselect", item);
+        } else {
+          this.$emit("select", item);
+        }
+        this.clickCount = 0;
+      }, 200);
+    },
+    onDblClickItem() {
+      this.onClickEdit();
+    },
     onClickDelete(item) {
       this.$emit("delete", item);
     },
@@ -223,8 +286,9 @@ $river-green: #51b392;
   display: flex;
   align-items: center;
   margin: 3px 0;
-  padding: 8px;
+  padding: 8px 18px;
   position: relative;
+  cursor: v-bind(cursorValue);
   &.mouseover {
     background-color: rgba(255, 255, 255, 0.5);
   }
@@ -234,6 +298,26 @@ $river-green: #51b392;
     outline: none;
     color: grey;
     background-color: aliceblue;
+  }
+  .draggable-handle {
+    z-index: 20;
+    color: #999;
+    position: absolute;
+    left: 0;
+    padding: 5px 5px 5px 10px;
+    cursor: grab;
+    &:hover {
+      color: $river-green;
+    }
+    &:active {
+      cursor: grabbing;
+    }
+  }
+  .selected-checkmark {
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    color: $river-green;
   }
   .item {
     width: 100%;
@@ -288,14 +372,17 @@ $river-green: #51b392;
 
   .item-heading {
     font-weight: bold;
-    &.heading-1 {
+    cursor: pointer;
+    &.selected {
       color: $river-green;
+    }
+    &.heading-1 {
       font-size: 2.5rem;
       margin-top: 5px;
-      border-bottom: 1px solid $river-green;
+      padding-left: 10px;
+      border-bottom: 2px solid;
     }
     &.heading-2 {
-      color: $river-green;
       font-size: 2rem;
       margin-left: 15px;
     }
@@ -304,7 +391,10 @@ $river-green: #51b392;
       font-size: 1.5rem;
       margin-left: 23px;
       padding-left: 8px;
-      border-left: 8px solid rgb(110, 110, 110);
+      border-left: 8px solid;
+      &.selected {
+        color: $river-green;
+      }
     }
   }
   .item-list {
@@ -313,7 +403,8 @@ $river-green: #51b392;
     display: flex;
     margin-left: 22px;
     .circle {
-      padding: 4px 2px 0 1px;
+      color: grey;
+      padding: 5px 2px 0 1px;
     }
     .text {
       width: 100%;
@@ -325,7 +416,6 @@ $river-green: #51b392;
     display: flex;
     margin-left: 20px;
     &.false {
-      color: $river-green;
       .text {
         width: 100%;
       }
@@ -361,12 +451,6 @@ $river-green: #51b392;
       cursor: pointer;
       &:hover {
         color: $river-green;
-      }
-      &.draggable-handle {
-        cursor: grab;
-      }
-      &:active {
-        cursor: grabbing;
       }
       .dropdown-menu {
         font-size: 0.8rem;

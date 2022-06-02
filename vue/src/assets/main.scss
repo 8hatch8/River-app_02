@@ -102,3 +102,68 @@ a {
   text-decoration: underline;
   cursor: pointer;
 }
+
+// ツールチップ
+.tooltip {
+  &:hover {
+    .balloon {
+      visibility: visible;
+      opacity: 1;
+    }
+    .balloon-right {
+      left: 150%;
+    }
+    .balloon-top {
+      bottom: 30%;
+    }
+  }
+  .balloon {
+    position: absolute;
+    transform: translateY(-50%);
+    padding: 8px;
+    border-radius: 15px;
+    background-color: #888;
+    font-size: 0.8em;
+    white-space: pre-line;
+    color: #fff;
+    text-align: center;
+    visibility: hidden;
+    opacity: 0;
+    z-index: 30;
+    transition: 0.3s all;
+  }
+  .balloon-right {
+    width: 130px;
+    top: 50%;
+    left: 80%;
+    margin-left: 8px;
+    &::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+      border-right: 15px solid #888;
+      position: absolute;
+      top: 50%;
+      right: 96%;
+      transform: translateY(-50%);
+    }
+  }
+  .balloon-top {
+    width: 80px;
+    bottom: 80%;
+    right: -25%;
+    margin-bottom: 8px;
+    &::before {
+      content: "";
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+      border-top: 13px solid #888;
+      position: absolute;
+      top: 120%;
+      right: 10%;
+      transform: translateY(-50%);
+    }
+  }
+}
