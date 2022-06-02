@@ -12,8 +12,10 @@
       <fa-icon icon="grip-vertical" />
     </div>
     <!-- 選択中 -->
-    <div v-if="isSelected && !isEditing" class="selected-checkmark">
-      <fa-icon icon="check" />
+    <div v-if="isSelected && !isEditing" class="selected-checkmark tooltip">
+      <fa-icon icon="check" /><span class="balloon-right">{{
+        "選択した見出し\nに投稿します"
+      }}</span>
     </div>
 
     <!-- type:テキスト -->
