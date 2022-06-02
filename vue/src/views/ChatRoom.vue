@@ -250,10 +250,10 @@ export default {
       this.selectedItems = [];
     },
     // 右ビュー：ChatForm
-    onPost(text) {
+    onPost(text, format) {
       const item = {
         text: text,
-        format: "text",
+        format: format,
         position: this.postPosition,
         agenda_id: this.selectedAgenda.id,
       };
