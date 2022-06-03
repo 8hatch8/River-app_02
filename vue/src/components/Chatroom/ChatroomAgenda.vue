@@ -107,6 +107,7 @@ export default {
 </script>
 
 <style scoped lang="scss">
+$river-green: #51b392;
 .agenda-wrapper {
   min-width: 280px;
   margin: 5px 0;
@@ -114,6 +115,7 @@ export default {
   align-items: center;
   padding: 5px;
   color: rgba(25, 23, 17, 0.6);
+  position: relative;
   &.mouseover {
     background-color: rgb(250, 250, 250);
     cursor: pointer;
@@ -139,14 +141,20 @@ export default {
     font-size: 1.2rem;
   }
   .buttons {
+    z-index: 20;
     display: flex;
     flex-direction: row;
+    position: absolute;
+    top: 5px;
+    right: 10px;
     .button-icon {
       padding: 3px;
       margin-left: 3px;
       border-radius: 5px;
+      position: relative;
+      cursor: pointer;
       &:hover {
-        color: #51b392;
+        color: $river-green;
       }
       &.draggable-handle {
         cursor: grab;
