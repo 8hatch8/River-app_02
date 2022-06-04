@@ -31,16 +31,16 @@
             <fa-icon icon="grip-lines" />
           </div>
           <!-- アジェンダ追加 -->
-          <div class="button-icon" @click.stop="onClickAddNext(agenda)">
-            <fa-icon icon="plus-circle" />
+          <div class="button-icon tooltip" @click.stop="onClickAddNext(agenda)">
+            <fa-icon icon="plus-circle" /><span class="balloon balloon-bottom">下に追加</span>
           </div>
           <!-- name編集 -->
-          <div class="button-icon" @click.stop="onClickEdit">
-            <fa-icon icon="edit" />
+          <div class="button-icon tooltip" @click.stop="onClickEdit">
+            <fa-icon icon="edit" /><span class="balloon balloon-bottom">編集</span>
           </div>
           <!-- アジェンダ削除 -->
-          <div class="button-icon" @click.stop="onClickDelete(agenda)">
-            <fa-icon icon="trash" />
+          <div class="button-icon tooltip" @click.stop="onClickDelete(agenda)">
+            <fa-icon icon="trash" /><span class="balloon balloon-bottom">削除</span>
           </div>
         </div>
       </template>
