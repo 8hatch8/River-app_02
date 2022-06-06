@@ -370,8 +370,10 @@ export default {
       }
     },
     async deleteAgenda(agenda) {
+      // 削除の確認
       const shouldDelete = confirm(`「${agenda.name}」を削除しますか？`);
       if (!shouldDelete) return;
+      // API通信
       try {
         const res = await axios.delete(`${apiServer}/rooms/${this.room.id}/agendas/${agenda.id}`, {
           headers: axiosHeaders(),
@@ -468,14 +470,12 @@ export default {
                   return agenda.id === data.agenda.id;
                 });
                 if (!targetAgenda) return;
-                // 対象Agendaを削除
-                const index = this.room.agendas.indexOf(targetAgenda);
-                this.room.agendas.splice(index, 1);
-                // 対象Agendaを表示中の場合
+                // 対象Agendaを表示中の場合はメッセージを表示
                 if (targetAgenda.id === this.selectedAgenda.id) {
-                  this.selectedAgenda = {};
                   confirm("表示中のテーマは削除されました");
+                  this.selectedAgenda = {};
                 }
+                this.getRoom();
                 break;
               }
               case "move_agenda":
