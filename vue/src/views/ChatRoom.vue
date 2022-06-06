@@ -220,6 +220,7 @@ export default {
         format: format,
         position: targetItem.position + 1,
         agenda_id: this.selectedAgenda.id,
+        user_name: this.user.nickname,
       };
       this.postItem(item);
     },
@@ -255,6 +256,7 @@ export default {
         format: format,
         position: this.postPosition,
         agenda_id: this.selectedAgenda.id,
+        user_name: this.user.nickname,
       };
       this.postItem(item);
     },
