@@ -282,6 +282,13 @@ export default {
       }
     },
     async putItem(editedItem) {
+      // クライアントの処理
+      const item = this.items.find((item) => {
+        return item.id === editedItem.id;
+      });
+      item.text = editedItem.text;
+      item.format = editedItem.format;
+      // API通信
       try {
         const res = await axios.put(
           `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${editedItem.id}`,
