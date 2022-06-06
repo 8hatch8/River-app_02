@@ -264,7 +264,11 @@ export default {
     // API Communication：Item
     async postItem(item) {
       // クライアントの処理
-      this.items.splice(item.position - 1, 0, item);
+      if (item.position) {
+        this.items.splice(item.position - 1, 0, item);
+      } else {
+        this.items.push(item);
+      }
       // API通信
       try {
         const res = await axios.post(
