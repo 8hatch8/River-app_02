@@ -351,6 +351,13 @@ export default {
       }
     },
     async putAgenda(editedAgenda) {
+      // クライアントの処理
+      const agenda = this.agendas.find((agenda) => {
+        return agenda.id === editedAgenda.id;
+      });
+      agenda.name = editedAgenda.name;
+      agenda.content = editedAgenda.content;
+      // API通信
       try {
         const res = await axios.put(
           `${apiServer}/rooms/${this.room.id}/agendas/${editedAgenda.id}`,
