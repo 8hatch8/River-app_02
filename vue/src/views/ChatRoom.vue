@@ -424,9 +424,7 @@ export default {
               agendas_order: room["agendas_order"],
             },
           },
-          {
-            headers: axiosHeaders(),
-          }
+          { headers: axiosHeaders() }
         );
         console.log(res);
       } catch (e) {
