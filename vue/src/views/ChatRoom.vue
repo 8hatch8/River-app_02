@@ -301,8 +301,13 @@ export default {
       }
     },
     async deleteItem(item) {
+      // 削除の確認
       const shouldDelete = confirm(`「${item.text}」\nを削除しますか？`);
       if (!shouldDelete) return;
+      // クライアントの処理
+      const index = this.items.indexOf(item);
+      this.items.splice(index, 1);
+      // API通信
       try {
         const res = await axios.delete(
           `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${item.id}`,
@@ -485,7 +490,7 @@ export default {
                 // 対象Agendaを表示中の場合はメッセージを表示
                 if (targetAgenda.id === this.selectedAgenda.id) {
                   confirm("表示中のテーマは削除されました");
-                  this.selectedAgenda = {};
+                  this.selectedAgenda = { id: 0 };
                 }
                 this.getRoom();
                 break;
@@ -515,6 +520,9 @@ export default {
                 if (!targetItem) return;
                 const index = this.selectedAgenda.items.indexOf(targetItem);
                 this.selectedAgenda.items.splice(index, 1);
+                if (targetItem === this.selectedItem) {
+                  this.selectedItem = { id: 0 };
+                }
                 break;
               }
               case "move_item": {
