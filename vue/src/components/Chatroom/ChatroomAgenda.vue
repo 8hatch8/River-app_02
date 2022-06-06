@@ -21,15 +21,16 @@
 
       <!-- 通常時 -->
       <template v-else>
-        <div class="agenda-icon"><fa-icon icon="comment" /></div>
+        <div class="agenda-icon">
+          <!-- hover時 -->
+          <fa-icon v-if="mouseOver" icon="grip-vertical" class="draggable-handle" />
+          <!-- 非hover時 -->
+          <fa-icon v-else icon="comment" />
+        </div>
         <div class="agenda-name">{{ agenda.name }}</div>
 
         <!-- 操作ボタン -->
         <div class="buttons" v-if="mouseOver">
-          <!-- アジェンダ移動 -->
-          <div class="button-icon draggable-handle">
-            <fa-icon icon="grip-lines" />
-          </div>
           <!-- アジェンダ追加 -->
           <div class="button-icon tooltip" @click.stop="onClickAddNext(agenda)">
             <fa-icon icon="plus-circle" /><span class="balloon balloon-bottom">下に追加</span>
@@ -116,12 +117,14 @@ $river-green: #51b392;
   padding: 5px;
   color: rgba(25, 23, 17, 0.6);
   position: relative;
+  overflow-wrap: break-word;
+  word-break: break-all;
   &.mouseover {
     background-color: rgb(250, 250, 250);
     cursor: pointer;
   }
   &.selected {
-    color: black;
+    color: $river-green;
     background-color: rgb(230, 230, 230);
     border-radius: 10px;
   }
@@ -133,7 +136,19 @@ $river-green: #51b392;
     border-radius: 10px;
   }
   .agenda-icon {
+    width: 25px;
     padding-left: 5px;
+    .draggable-handle {
+      z-index: 20;
+      color: #999;
+      cursor: grab;
+      &:hover {
+        color: $river-green;
+      }
+      &:active {
+        cursor: grabbing;
+      }
+    }
   }
   .agenda-name {
     width: 100%;
@@ -141,12 +156,16 @@ $river-green: #51b392;
     font-size: 1.2rem;
   }
   .buttons {
+    color: #666;
+    background-color: rgba(255, 255, 255, 0.6);
     z-index: 20;
     display: flex;
     flex-direction: row;
     position: absolute;
     top: 5px;
     right: 10px;
+    padding: 0 5px;
+    border-radius: 10px;
     .button-icon {
       padding: 3px;
       margin-left: 3px;
