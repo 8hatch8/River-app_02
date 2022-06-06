@@ -132,10 +132,10 @@ export default {
   data() {
     return {
       roomChannel: {},
-      user: { id: 1, nickname: "テストユーザー" },
-      room: {},
-      selectedAgenda: {},
-      selectedItem: {},
+      user: { id: 0, nickname: "テストユーザー" },
+      room: { id: 0 },
+      selectedAgenda: { id: 0 },
+      selectedItem: { id: 0 },
       mouseOverContent: false,
       isEditingContent: false,
       isDragging: false,
