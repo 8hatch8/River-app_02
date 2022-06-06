@@ -518,7 +518,7 @@ export default {
     this.disconnectCable();
   },
   watch: {
-    room() {
+    "room.id"() {
       this.connectCable();
     },
   },
