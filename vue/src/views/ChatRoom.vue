@@ -327,16 +327,22 @@ export default {
       }
     },
     async postAgenda(agenda) {
+      const postAgenda = {
+        name: `新しいテーマ${this.agendas.length + 1}`,
+        position: agenda ? agenda.position + 1 : null,
+        room_id: this.room.id,
+      };
+      // クライアントの処理
+      if (postAgenda.position) {
+        this.room.agendas.splice(postAgenda.position - 1, 0, postAgenda);
+      } else {
+        this.room.agendas << postAgenda;
+      }
+      // API通信
       try {
         const res = await axios.post(
           `${apiServer}/rooms/${this.room.id}/agendas`,
-          {
-            agenda: {
-              name: `新しいテーマ${this.agendas.length + 1}`,
-              position: agenda ? agenda.position + 1 : null,
-              room_id: this.room.id,
-            },
-          },
+          { agenda: postAgenda },
           { headers: axiosHeaders() }
         );
         console.log(res);
