@@ -132,10 +132,10 @@ export default {
   data() {
     return {
       roomChannel: {},
-      user: { id: 1, nickname: "テストユーザー" },
-      room: {},
-      selectedAgenda: {},
-      selectedItem: {},
+      user: { id: 0, nickname: "テストユーザー" },
+      room: { id: 0 },
+      selectedAgenda: { id: 0 },
+      selectedItem: { id: 0 },
       mouseOverContent: false,
       isEditingContent: false,
       isDragging: false,
@@ -220,6 +220,7 @@ export default {
         format: format,
         position: targetItem.position + 1,
         agenda_id: this.selectedAgenda.id,
+        user_name: this.user.nickname,
       };
       this.postItem(item);
     },
@@ -255,6 +256,7 @@ export default {
         format: format,
         position: this.postPosition,
         agenda_id: this.selectedAgenda.id,
+        user_name: this.user.nickname,
       };
       this.postItem(item);
     },
@@ -263,6 +265,13 @@ export default {
     },
     // API Communication：Item
     async postItem(item) {
+      // クライアントの処理
+      if (item.position) {
+        this.items.splice(item.position - 1, 0, item);
+      } else {
+        this.items.push(item);
+      }
+      // API通信
       try {
         const res = await axios.post(
           `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items`,
@@ -275,6 +284,13 @@ export default {
       }
     },
     async putItem(editedItem) {
+      // クライアントの処理
+      const item = this.items.find((item) => {
+        return item.id === editedItem.id;
+      });
+      item.text = editedItem.text;
+      item.format = editedItem.format;
+      // API通信
       try {
         const res = await axios.put(
           `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${editedItem.id}`,
@@ -287,8 +303,13 @@ export default {
       }
     },
     async deleteItem(item) {
+      // 削除の確認
       const shouldDelete = confirm(`「${item.text}」\nを削除しますか？`);
       if (!shouldDelete) return;
+      // クライアントの処理
+      const index = this.items.indexOf(item);
+      this.items.splice(index, 1);
+      // API通信
       try {
         const res = await axios.delete(
           `${apiServer}/rooms/${this.room.id}/agendas/${this.selectedAgenda.id}/items/${item.id}`,
@@ -327,16 +348,22 @@ export default {
       }
     },
     async postAgenda(agenda) {
+      const postAgenda = {
+        name: `新しいテーマ${this.agendas.length + 1}`,
+        position: agenda ? agenda.position + 1 : null,
+        room_id: this.room.id,
+      };
+      // クライアントの処理
+      if (postAgenda.position) {
+        this.room.agendas.splice(postAgenda.position - 1, 0, postAgenda);
+      } else {
+        this.room.agendas << postAgenda;
+      }
+      // API通信
       try {
         const res = await axios.post(
           `${apiServer}/rooms/${this.room.id}/agendas`,
-          {
-            agenda: {
-              name: `新しいテーマ${this.agendas.length + 1}`,
-              position: agenda ? agenda.position + 1 : null,
-              room_id: this.room.id,
-            },
-          },
+          { agenda: postAgenda },
           { headers: axiosHeaders() }
         );
         console.log(res);
@@ -345,6 +372,13 @@ export default {
       }
     },
     async putAgenda(editedAgenda) {
+      // クライアントの処理
+      const agenda = this.agendas.find((agenda) => {
+        return agenda.id === editedAgenda.id;
+      });
+      agenda.name = editedAgenda.name;
+      agenda.content = editedAgenda.content;
+      // API通信
       try {
         const res = await axios.put(
           `${apiServer}/rooms/${this.room.id}/agendas/${editedAgenda.id}`,
@@ -357,8 +391,10 @@ export default {
       }
     },
     async deleteAgenda(agenda) {
+      // 削除の確認
       const shouldDelete = confirm(`「${agenda.name}」を削除しますか？`);
       if (!shouldDelete) return;
+      // API通信
       try {
         const res = await axios.delete(`${apiServer}/rooms/${this.room.id}/agendas/${agenda.id}`, {
           headers: axiosHeaders(),
@@ -409,9 +445,7 @@ export default {
               agendas_order: room["agendas_order"],
             },
           },
-          {
-            headers: axiosHeaders(),
-          }
+          { headers: axiosHeaders() }
         );
         console.log(res);
       } catch (e) {
@@ -455,14 +489,12 @@ export default {
                   return agenda.id === data.agenda.id;
                 });
                 if (!targetAgenda) return;
-                // 対象Agendaを削除
-                const index = this.room.agendas.indexOf(targetAgenda);
-                this.room.agendas.splice(index, 1);
-                // 対象Agendaを表示中の場合
+                // 対象Agendaを表示中の場合はメッセージを表示
                 if (targetAgenda.id === this.selectedAgenda.id) {
-                  this.selectedAgenda = {};
                   confirm("表示中のテーマは削除されました");
+                  this.selectedAgenda = { id: 0 };
                 }
+                this.getRoom();
                 break;
               }
               case "move_agenda":
@@ -490,6 +522,9 @@ export default {
                 if (!targetItem) return;
                 const index = this.selectedAgenda.items.indexOf(targetItem);
                 this.selectedAgenda.items.splice(index, 1);
+                if (targetItem === this.selectedItem) {
+                  this.selectedItem = { id: 0 };
+                }
                 break;
               }
               case "move_item": {
